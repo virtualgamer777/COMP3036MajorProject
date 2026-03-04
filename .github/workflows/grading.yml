@@ -15,6 +15,7 @@ jobs:
       CI: true
       DATABASE_URL: file:./dev.db
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      COURSE_ID: full-stack-development-comp3036-2026
       PASSWORD: 123
       JWT_SECRET: secret
       # NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
@@ -104,8 +105,8 @@ jobs:
         continue-on-error: true
         uses: tomitrescak/skillpies-reporting@v1.0
         with:
-          courseId: full-stack-development
-          sectionId: assignment-2-1-blog-client-in-advanced-react
+          courseId: ${{env.COURSE_ID}}
+          sectionId: assignment-2-1-blog-client-in-next-js
           testResult: ${{steps.npm1.outputs.result}}
 
       ####################
@@ -127,7 +128,7 @@ jobs:
         uses: tomitrescak/skillpies-reporting@v1.0
         continue-on-error: true
         with:
-          courseId: full-stack-development
+          courseId: ${{env.COURSE_ID}}
           sectionId: assignment-2-2-blog-admin-in-databases
           testResult: ${{steps.npm2.outputs.result}}
 
@@ -150,7 +151,7 @@ jobs:
         uses: tomitrescak/skillpies-reporting@v1.0
         continue-on-error: true
         with:
-          courseId: full-stack-development
+          courseId: ${{env.COURSE_ID}}
           sectionId: assignment-2-3-blog-backend-in-authentication-and-authorisation
           testResult: ${{steps.npm3.outputs.result}}
 
