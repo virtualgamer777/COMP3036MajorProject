@@ -8,12 +8,12 @@ export async function AppLayout({
   query,
 }: PropsWithChildren<{ query?: string }>) {
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       <LeftMenu />
       <Content>
         <TopMenu query={query} />
         {children}
       </Content>
-    </>
+    </div>
   );
 }
