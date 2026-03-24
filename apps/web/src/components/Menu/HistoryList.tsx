@@ -1,5 +1,6 @@
 import { history } from "@/functions/history";
 import { type Post } from "@repo/db/data";
+import { JSX } from "react";
 
 const months = [
   "",
@@ -30,5 +31,10 @@ export async function HistoryList({
 
   // TODO: use the "history" function on "functions" directory to get the history
   //       and render all history items using the SummaryItem component
-  return <div>History List</div>;
+  const list: JSX.Element[] = []
+  historyItems.forEach((item) => {
+    list.push(<div>{item}</div>)
+  });
+
+  return list;
 }
