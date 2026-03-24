@@ -25,13 +25,17 @@ export function BlogList({ posts }: { posts: Post[] }) {
                 {/* Info side */}
                 <div className="p-4 flex-1 ">
                   <div className="mb-1 text-xs uppercase tracking-wide">
-                    {post.date.toLocaleString("en-AU", {day: "numeric", month: "long", year: "numeric"})} {post.category}
+                    {post.date.toLocaleString("en-AU", {day: "numeric", month: "long", year: "numeric"})} 
+                    {post.category}
                   </div>
                   <h3 className="font-semibold">
                     {post.title}
                   </h3>
                   <p className="mt-2 text-sm">
                     {post.description}
+                  </p>
+                  <p className=" text-secondary mt-4 text-sm">
+                    {"#" + post.tags.split(",").join(" #")}
                   </p>
                   <div className="mt-4 border-t border-gray-200 pt-3 text-sm text-gray-500">
                     <div className="flex items-center justify-between">

@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/Layout/AppLayout";
+import { Post } from "@repo/db/data";
 
 export default async function Page({
   params,
