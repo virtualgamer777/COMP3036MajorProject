@@ -22,9 +22,9 @@ export function BlogListItem({ post }: { post: Post }) {
           {post.date.toLocaleString("en-AU", {day: "2-digit", month: "short", year: "numeric"})} 
           &nbsp;&nbsp;{post.category}
         </div>
-        <a href={`/post/${toUrlPath(post.title)}`} className="block">
+        <Link href={`/post/${toUrlPath(post.title)}`} className="block">
           {post.title}
-        </a>
+        </Link>
         <p className="mt-2 text-sm text-secondary">
           {post.description}
         </p>
