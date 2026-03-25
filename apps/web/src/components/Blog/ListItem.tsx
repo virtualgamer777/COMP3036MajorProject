@@ -17,7 +17,7 @@ export function BlogListItem({ post }: { post: Post }) {
       </Link>
 
       {/* Info side */}
-      <div className="p-4 flex-1 ">
+      <div className="p-4 flex-1 text-secondary">
         <div className="mb-1 text-xs uppercase tracking-wide">
           {post.date.toLocaleString("en-AU", {day: "2-digit", month: "short", year: "numeric"})} 
           &nbsp;&nbsp;{post.category}

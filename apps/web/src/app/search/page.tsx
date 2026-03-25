@@ -8,8 +8,9 @@ export default async function Page({
   searchParams: Promise<{ q: string }>;
 }) {
   const { q } = await searchParams;
+  const query = (q ?? "").toLowerCase();
   //filter posts out to only those with titles or descriptions matching the search query
-  const filteredPosts = posts.filter((post) => (post.title.toLowerCase().includes(q.toLowerCase()) || post.description.toLowerCase().includes(q.toLowerCase())) && post.active); 
+  const filteredPosts = posts.filter((post) => (post.title.toLowerCase().includes(query) || post.description.toLowerCase().includes(query)) && post.active); 
 
   return (
     <AppLayout query={q}>

@@ -7,7 +7,7 @@ export function BlogList({ posts }: { posts: Post[] }) {
   //if there are no posts provided, display that
   if (posts.length === 0)
   {
-    return <div className="py-6">0 Posts</div>
+    return <div className="mr-36 space-y-4 mt-5 text-primary ml-5 text-3xl items-center flex flex-col">0 Posts</div>
   }
   return (
     <div className="py-6 mr-36">

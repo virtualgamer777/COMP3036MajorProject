@@ -24,7 +24,7 @@ export function SummaryItem({
         aria-current={isSelected ? "page" : undefined}
         className={`flex items-center justify-between rounded-md px-3 py-2 ${
           isSelected
-            ? "bg-gray-200 dark:bg-gray-800 text-primary selected"
+            ? "text-primary selected"
             : "text-secondary hover:bg-gray-100 dark:hover:bg-gray-900"
         }`}
       >

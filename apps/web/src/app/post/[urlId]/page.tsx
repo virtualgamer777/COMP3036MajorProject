@@ -22,25 +22,27 @@ export default async function Page({
     <AppLayout>
       <article className="mx-auto max-w-3xl py-8 flex flex-col items-center">
         <div className="p-4 flex-1 ">
-          <div className="mb-1 text-xs uppercase tracking-wide">
+          <div className="mb-1 text-xs uppercase tracking-wide text-secondary">
             {post.date.toLocaleString("en-AU", {day: "2-digit", month: "short", year: "numeric"})} 
             &nbsp;&nbsp;{post.category}
           </div>
-          {post.title}
-          <div className="md:w-200 md:flex-shrink-0">
+          <h1 className="text-primary text-3xl items-center flex flex-col">
+            {post.title}
+          </h1>
+          <div className="md:w-200 md:flex-shrink-0 ">
             <img
               src={`https://picsum.photos/seed/${post.id}/500/300`}
               alt={post.title}
               className="h-48 w-full object-cover md:h-full"
             />
           </div>
-          <div className="mt-2 text-sm text-secondary" dangerouslySetInnerHTML={{__html: await marked(post.content)}}>
+          <div className="mt-2 text-sm text-primary" dangerouslySetInnerHTML={{__html: await marked(post.content)}}>
           </div>
           <p className=" text-secondary mt-4 text-sm">
             {"#" + post.tags.split(",").join(" #")}
           </p>
           <div className="mt-4 border-t border-gray-200 pt-3 text-sm">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-primary">
               <span>
                 {(
                   post as Post & { views?: number }

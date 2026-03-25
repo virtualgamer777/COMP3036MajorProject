@@ -3,6 +3,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import "./globals.css";
+import { Theme, ThemeContext, ThemeProvider } from "@/components/Themes/ThemeContext";
+import { useContext } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,13 +26,16 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const serverCookies = await cookies();
-  const theme = serverCookies.get("theme")?.value || "light";
+  const theme: Theme = serverCookies.get("theme")?.value === "dark" ? "dark" : "light";
+  //const theme: Theme = "dark";
 
   return (
-    <html lang="en" data-theme={theme}>
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
-    </html>
+    <ThemeProvider initialTheme={theme}>
+      <html lang="en" data-theme={theme}>
+        <body className={`${geistSans.variable} ${geistMono.variable}`}>
+          {children}
+        </body>
+      </html>
+    </ThemeProvider>
   );
 }
