@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function BlogListItem({ post }: { post: Post }) {
   return (
-    <article className="flex flex-col md:flex-row">
+    <article data-test-id={`blog-post-${post.id}`} className="flex flex-col md:flex-row">
       {/* Image side */}
       <Link href={`/post/${toUrlPath(post.title)}`} className="block focus:outline-none outline-none">
         <div className="md:w-56 md:flex-shrink-0">
