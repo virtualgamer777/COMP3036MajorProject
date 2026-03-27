@@ -23,6 +23,7 @@ export function CategoryList({ posts }: { posts: Post[] }) {
           isSelected={false}
           link={item.link}
           title={`Category / ${item.name}`}
+          data-test-id="post-count"
         />
       ))}
     </>

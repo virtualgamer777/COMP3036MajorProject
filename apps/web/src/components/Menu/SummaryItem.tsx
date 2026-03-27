@@ -29,7 +29,7 @@ export function SummaryItem({
         }`}
       >
         <span>{name}</span>
-        <span className="text-sm">{count}</span>
+        <span className="text-sm" data-test-id="post-count">{count}</span>
       </Link>
     </div>
   );

@@ -47,7 +47,7 @@ export async function HistoryList({
             count={item.count}
             link={`/history/${item.year}/${item.month}`}
             isSelected={isSelected}
-            title=""
+            title={`History / ${name}`}
           />
         );
       })}
