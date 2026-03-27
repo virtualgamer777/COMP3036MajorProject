@@ -12,7 +12,9 @@ export function BlogList({ posts }: { posts: Post[] }) {
   return (
     <div className="py-6 mr-36">
       <ul className="space-y-4">
-        {posts.map((post) => (
+        {posts
+        .filter((post) => post.active)
+        .map((post) => (
           <li key={post.id} className="overflow-hidden rounded-lg ml-5 ">
             <BlogListItem post={post}></BlogListItem>
           </li>
