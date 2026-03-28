@@ -14,12 +14,12 @@ Example implementation is in the image below.
 
 ### HOME SCREEN
 
-- [ ] User must see only the "active" posts
-- [ ] User must see the list of blog post categories, where each category points to UI showing only posts of that category
-- [ ] User must see the list of blog post tags, where each tag points to UI showing only posts of that category
-- [ ] User must see the history of blog posts, showing month and year, where each moth, year tuple points to UI showing only posts of that category
-- [ ] Tags and history items shown are only considered from active posts
-- [ ] The list shows the following items:
+- [x] User must see only the "active" posts
+- [x] User must see the list of blog post categories, where each category points to UI showing only posts of that category
+- [x] User must see the list of blog post tags, where each tag points to UI showing only posts of that category
+- [x] User must see the history of blog posts, showing month and year, where each moth, year tuple points to UI showing only posts of that category
+- [x] Tags and history items shown are only considered from active posts
+- [x] The list shows the following items:
   - blog title, pointing to detail page
   - short description
   - date
@@ -27,34 +27,34 @@ Example implementation is in the image below.
   - tags
   - likes
   - views
-- [ ] User must be able to switch between dark and light theme with a button
+- [x] User must be able to switch between dark and light theme with a button
       The dark theme setting is stored in the "data-theme" attribute on html element
-- [ ] There is a search functionality that filters blogs based on string found in title or description, redirecting to search page
+- [x] There is a search functionality that filters blogs based on string found in title or description, redirecting to search page
 
 ### DETAIL SCREEN
 
-- [ ] Detail page shows the same items as list item, but the short description is replaced by formatted long description
-- [ ] Detail text is stored as Markdown, which needs to be converted to HTML
+- [x] Detail page shows the same items as list item, but the short description is replaced by formatted long description
+- [x] Detail text is stored as Markdown, which needs to be converted to HTML
 
 ### CATEGORY SCREEN
 
-- [ ] Displays posts from the category from url (e.g. /category/react)
-- [ ] Displays "0 Posts" when search does no posts have that category
+- [x] Displays posts from the category from url (e.g. /category/react)
+- [x] Displays "0 Posts" when search does no posts have that category
 
 ### HISTORY SCREEN
 
-- [ ] Displays posts from year and month specified in the url (e.g. /history/2024/12)
-- [ ] Displays "0 Posts" when no posts are from that given month and year
+- [x] Displays posts from year and month specified in the url (e.g. /history/2024/12)
+- [x] Displays "0 Posts" when no posts are from that given month and year
 
 ### TAG SCREEN
 
-- [ ] Displays posts with the tag url (e.g. /tags/dev-tools)
-- [ ] Displays "0 Posts" when search does no posts have that tag
+- [x] Displays posts with the tag url (e.g. /tags/dev-tools)
+- [x] Displays "0 Posts" when search does no posts have that tag
 
 ### SEARCH SCREEN
 
-- [ ] Displays results based on search string stored in the query string (e.g. /search?q=Fat)
-- [ ] Displays "0 Posts" when search does not find anything
+- [x] Displays results based on search string stored in the query string (e.g. /search?q=Fat)
+- [x] Displays "0 Posts" when search does not find anything
 
 ## 👾 Requirements - Assignment 2.2 - Admin
 

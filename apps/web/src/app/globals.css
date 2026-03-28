@@ -13,6 +13,9 @@
   --text-secondaryHover: theme("colors.gray.400");
   --wsu: #a31631;
   --wsu-light: #853846;
+
+  --link: var(--text);
+  --link-hover: var(--textHover);
 }
 
 html[data-theme="dark"] {
@@ -22,10 +25,29 @@ html[data-theme="dark"] {
   --textHover: theme("colors.gray.300");
   --text-secondary: theme("colors.gray.400");
   --text-secondaryHover: theme("colors.gray.500");
+
+  --link: var(--text);
+  --link-hover: var(--textHover);
 }
 
 html {
   background: var(--background);
+}
+
+a,
+a:visited {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+a:focus,
+a:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 @theme inline {
