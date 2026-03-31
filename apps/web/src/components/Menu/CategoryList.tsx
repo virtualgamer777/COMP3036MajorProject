@@ -13,9 +13,22 @@ export function CategoryList({ posts }: { posts: Post[] }) {
     { name: "DevOps", link: "/category/devops", count: 0 },
   ];
 
+  //get the count
+  const categoriesWithCount = staticCategories.map((category) => ({ ...category }));
+  posts.filter((post) => post.active)
+    .forEach((post) => {
+      const match = categoriesWithCount.find(
+        (category) => category.name.toLowerCase() === post.category.toLowerCase(),
+      );
+
+      if (match) {
+        match.count += 1;
+      }
+    });
+
   return (
     <>
-      {staticCategories.map((item) => (
+      {categoriesWithCount.map((item) => (
         <SummaryItem
           key={item.name}
           count={item.count}
