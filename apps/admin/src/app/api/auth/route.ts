@@ -7,7 +7,7 @@ export async function POST(req: Request) {
   const password = String(formData.get("password") ?? "");
 
   if (password !== env.PASSWORD) {
-    return NextResponse.redirect(new URL("/?error=Wrong\ Password", req.url));
+    return NextResponse.redirect(new URL("/?error=Wrong Password", req.url));
   }
 
   const cookieStore = await cookies();
