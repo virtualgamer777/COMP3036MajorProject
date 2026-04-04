@@ -1,13 +1,21 @@
 import { posts } from "@repo/db/data";
 import { isLoggedIn } from "../utils/auth";
 import styles from "./page.module.css";
-export default async function Home() {
+import Login from "../components/auth/login";
+
+type HomeProps = {
+  searchParams?: Promise<{ error?: string }>;
+};
+
+export default async function Home({ searchParams }: HomeProps) {
   // use the is logged in function to check if user is authorised
   // we will use the cookie based approach
   const loggedIn = await isLoggedIn();
+  
 
   if (!loggedIn) {
-    return <main>Not logged in</main>;
+    const params = searchParams ? await searchParams : undefined;
+    return <main><Login error={params?.error}></Login></main>;
   } else {
     return (
       <main className={styles.main}>
