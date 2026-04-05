@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const formData = await req.formData();
-  const password = String(formData.get("password") ?? "");
+  const password = String(formData.get("Password") ?? "");
 
   if (password !== env.PASSWORD) {
     return NextResponse.redirect(new URL("/?error=Wrong Password", req.url));
@@ -20,10 +20,4 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.redirect(new URL("/", req.url));
-}
-
-export async function DELETE() {
-  const cookieStore = await cookies();
-  cookieStore.delete("auth_token");
-  return NextResponse.json({ ok: true });
 }

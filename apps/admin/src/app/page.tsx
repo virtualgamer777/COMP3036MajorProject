@@ -2,6 +2,7 @@ import { posts } from "@repo/db/data";
 import { isLoggedIn } from "../utils/auth";
 import styles from "./page.module.css";
 import Login from "../components/auth/login";
+import { AppLayout } from "../components/layout/AppLayout";
 
 type HomeProps = {
   searchParams?: Promise<{ error?: string }>;
@@ -18,13 +19,14 @@ export default async function Home({ searchParams }: HomeProps) {
     return <main><Login error={params?.error}></Login></main>;
   } else {
     return (
-      <main className={styles.main}>
+      <AppLayout>
+        Admin of Full Stack Blog
         <ul>
           {posts.map((p) => (
             <li key={p.id}>{p.title}</li>
           ))}
         </ul>
-      </main>
+      </AppLayout>
     );
   }
 }
