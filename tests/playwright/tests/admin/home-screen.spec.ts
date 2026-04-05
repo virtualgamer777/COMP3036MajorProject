@@ -13,6 +13,7 @@ test.describe("ADMIN HOME SCREEN", () => {
     },
     async ({ page }) => {
       await page.goto("/");
+      //console.log(await page.content());
       await expect(page.getByText("Sign In", { exact: true })).toBeVisible();
 
       // HOME SCREEN > Shows Login screen if not logged
@@ -61,7 +62,7 @@ test.describe("ADMIN HOME SCREEN", () => {
     },
     async ({ userPage }) => {
       await userPage.goto("/");
-
+      //console.log(await userPage.locator("body").innerHTML());
       // shows title
       await expect(
         userPage.getByText("Admin of Full Stack Blog", { exact: true }),

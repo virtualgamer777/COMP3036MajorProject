@@ -1,7 +1,6 @@
-"use client";
-
 // import { redirect } from "next/navigation";
 // import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
 
@@ -21,7 +20,7 @@ export async function AppLayout({
   	// }
 	
 	return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="py-6 mr-36">
       <form action="/api/auth/logout" method="post" className="absolute right-4 top-4 z-10">
         <button
           type="submit"
@@ -31,7 +30,7 @@ export async function AppLayout({
         </button>
       </form>
 
-	  <main>
+	    <main>
         {children}
       </main>
     </div>
