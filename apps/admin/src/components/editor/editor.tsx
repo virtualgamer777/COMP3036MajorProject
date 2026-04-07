@@ -1,9 +1,7 @@
 "use client"
 
-import React, { useMemo, useRef, useState } from 'react';
-import Link from "next/link";
-import { posts } from '@repo/db/data';
-import { toUrlPath } from "@repo/utils/url";
+import React, { useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -18,26 +16,6 @@ type FormValues = {
 type FormErrors = Partial<Record<keyof FormValues, string>>;
 
 const MAX_DESCRIPTION_LENGTH = 200;
-
-const escapeHtml = (value: string) =>
-	value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
-
-const markdownToHtml = (markdown: string) => {
-	const safe = escapeHtml(markdown);
-
-	return safe
-		.replace(/^### (.*$)/gim, '<h3>$1</h3>')
-		.replace(/^## (.*$)/gim, '<h2>$1</h2>')
-		.replace(/^# (.*$)/gim, '<h1>$1</h1>')
-		.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-		.replace(/\*(.*?)\*/gim, '<em>$1</em>')
-		.replace(/`(.*?)`/gim, '<code>$1</code>')
-		.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
-		.replace(/\n/g, '<br />');
-};
 
 const isValidUrl = (value: string) => {
 	try {
@@ -77,6 +55,7 @@ const validate = (values: FormValues): FormErrors => {
 };
 
 export default function Editor() {
+	const router = useRouter();
 	const [values, setValues] = useState<FormValues>({
 		title: '',
 		description: '',
@@ -88,11 +67,10 @@ export default function Editor() {
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [showPreview, setShowPreview] = useState(false);
 	const [saveAttempted, setSaveAttempted] = useState(false);
+	const [saveError, setSaveError] = useState<string | null>(null);
 
 	const contentRef = useRef<HTMLTextAreaElement | null>(null);
 	const savedCursor = useRef<{ start: number; end: number } | null>(null);
-
-	const renderedContent = useMemo(() => markdownToHtml(values.content), [values.content]);
 
 	const handleChange =
 		(field: keyof FormValues) =>
@@ -129,36 +107,33 @@ export default function Editor() {
 		});
 	};
 
-	const handleSave = (event: React.FormEvent) => {
+	const handleSave = async (event: React.FormEvent) => {
 		event.preventDefault();
 		setSaveAttempted(true);
+		setSaveError(null);
 
 		const nextErrors = validate(values);
 		setErrors(nextErrors);
 
-		// Save action can be added here when no errors are present.
 		if (Object.keys(nextErrors).length === 0) {
-			const nextId = posts.length ? Math.max(...posts.map((p) => p.id)) + 1 : 1;
-
-			posts.push({
-				id: nextId,
-				urlId: toUrlPath(values.title),
-				title: values.title.trim(),
-				description: values.description.trim(),
-				content: values.content.trim(),
-				imageUrl: values.imageUrl.trim(),
-				date: new Date(),
-				category: "General",
-				views: 0,
-				likes: 0,
-				tags: values.tagList
-				.split(",")
-				.map((t) => t.trim())
-				.filter(Boolean)
-				.join(","),
-				active: true,
+			const response = await fetch('/api/updatePost', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(values),
 			});
+
+			console.log(response);
+
+			if (!response.ok) {
+				setSaveError('Unable to save post. Please try again.');
+				return;
+			}
+
+			router.push('/');
 		}
+		
 	};
 
 	const showError = (field: keyof FormValues) => saveAttempted && errors[field];
@@ -233,7 +208,7 @@ export default function Editor() {
 				/>
 				) : (
 				<div className="prose max-w-none min-h-52 rounded-lg border border-slate-300 bg-slate-50 p-4">
-					<div dangerouslySetInnerHTML={{ __html: renderedContent || "<em>No content</em>" }} />
+					<pre className="whitespace-pre-wrap break-words font-mono text-sm text-slate-900">{values.content || 'No content'}</pre>
 				</div>
 				)}
 
@@ -292,6 +267,7 @@ export default function Editor() {
 				Save
 			</button>
 			</div>
+			{saveError ? <p className="text-sm text-red-600">{saveError}</p> : null}
 		</form>
 	);
 

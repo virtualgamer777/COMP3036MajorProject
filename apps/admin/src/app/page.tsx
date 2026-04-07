@@ -1,11 +1,11 @@
-import { Post, posts } from "@repo/db/data";
+"use server"
+
+import { getPosts, Post } from "@repo/db/data";
 import { isLoggedIn } from "../utils/auth";
 import styles from "./page.module.css";
 import Login from "../components/auth/login";
 import { AppLayout } from "../components/layout/AppLayout";
-import { AdminList } from "../components/list/List";
 import Link from "next/link";
-import { AdminFilters } from "../components/list/AdminFilters";
 import { AdminDashboard } from "../components/list/AdminDashboard";
 
 type HomeProps = {
@@ -24,6 +24,8 @@ export default async function Home({ searchParams }: HomeProps) {
     return <main><Login error={params?.error}></Login></main>;
   } 
 
+  //console.log(getPosts());
+
   const params = await searchParams;
 
 
@@ -41,7 +43,7 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
 
         <AdminDashboard
-          posts={posts}
+          posts={getPosts()}
           initialQuery={{
             q: params?.q ?? "",
             tag: params?.tag ?? "",

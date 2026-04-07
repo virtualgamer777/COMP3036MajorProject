@@ -13,6 +13,11 @@ export type Post = {
   active: boolean;
 };
 
+declare global {
+  // eslint-disable-next-line no-var
+  var __postsStore: Post[] | undefined;
+}
+
 const content = `
   # Title 1
 
@@ -34,7 +39,7 @@ Hic vel totam vitae illo. Non aliquid explicabo necessitatibus unde.
 Sed exercitationem placeat consectetur nulla deserunt vel 
 iusto corrupti dicta laboris incididunt.`;
 
-export const posts: Post[] = [
+export const initialPosts: Post[] = [
   {
     id: 1,
     title: "Boost your conversion rate",
@@ -104,3 +109,23 @@ export const posts: Post[] = [
     active: false,
   },
 ];
+
+export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = initialPosts);
+
+export function getPosts(): Post[] {
+  return posts;
+}
+
+export function appendPost(post: Post) {
+  posts.push(post);
+}
+
+export function upsertPost(post: Post) {
+  const index = posts.findIndex((existing) => existing.id === post.id || existing.urlId === post.urlId);
+  if (index >= 0) {
+    posts[index] = post;
+    return;
+  }
+
+  posts.push(post);
+}

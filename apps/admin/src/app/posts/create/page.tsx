@@ -1,13 +1,19 @@
-import Editor from "../../../components/editor/editor";
-import styles from "./page.module.css";
+"use server"
 
+import { redirect } from 'next/navigation';
+import { isLoggedIn } from '../../../utils/auth';
+import Editor from '../../../components/editor/editor';
 
-export default function Create() {
-	return (
-		<main>
-			<Editor>
-				
-			</Editor>
-		</main>
-	)
+export default async function Create() {
+  const loggedIn = await isLoggedIn();
+
+  if (!loggedIn) {
+    redirect('/');
+  }
+
+  return (
+    <main>
+      <Editor />
+    </main>
+  );
 }
