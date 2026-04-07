@@ -11,7 +11,7 @@ export function AdminListItem({ post }: { post: Post }) {
       <Link href={`/post/${toUrlPath(post.title)}`} className="block focus:outline-none outline-none">
         <div className="md:w-56 md:flex-shrink-0">
           <img
-            src={`https://picsum.photos/seed/${post.id}/500/300`}
+            src={post.imageUrl}
             alt={post.title}
             className="h-48 w-full object-cover md:h-full"
           />

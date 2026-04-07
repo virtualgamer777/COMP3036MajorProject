@@ -1,8 +1,9 @@
 "use client"
 
-import React, { useRef, useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-
+import { Post } from '@repo/db/data';
+import { marked } from 'marked';
 
 
 type FormValues = {
@@ -11,6 +12,10 @@ type FormValues = {
 	content: string;
 	tagList: string;
 	imageUrl: string;
+};
+
+type EditorProps = {
+  initialPost?: Post | null;
 };
 
 type FormErrors = Partial<Record<keyof FormValues, string>>;
@@ -32,7 +37,7 @@ const validate = (values: FormValues): FormErrors => {
 	if (!values.title.trim()) errors.title = 'Title is required.';
 	if (!values.description.trim()) errors.description = 'Description is required.';
 	if (values.description.length > MAX_DESCRIPTION_LENGTH) {
-		errors.description = `Description must be at most ${MAX_DESCRIPTION_LENGTH} characters.`;
+		errors.description = `Description is too long. Maximum is 200 characters`;
 	}
 	if (!values.content.trim()) errors.content = 'Content is required.';
 
@@ -48,20 +53,36 @@ const validate = (values: FormValues): FormErrors => {
 	if (!values.imageUrl.trim()) {
 		errors.imageUrl = 'Image URL is required.';
 	} else if (!isValidUrl(values.imageUrl.trim())) {
-		errors.imageUrl = 'Image URL must be a valid http/https URL.';
+		errors.imageUrl = 'This is not a valid URL';
 	}
 
 	return errors;
 };
 
-export default function Editor() {
+const renderMarkdown = (markdown: string) => {
+	if (!markdown.trim()) {
+		return '<em>No content</em>';
+	}
+
+	return marked.parse(markdown, { async: false });
+};
+
+export default function Editor({ initialPost = null }: EditorProps) {
 	const router = useRouter();
+	const normalizeDescription = (value?: string | null) =>
+		(value ?? '')
+			.replace(/^"(.*)"$/s, '$1')       // strips wrapping quotes if present
+			.replace(/\s*\n\s*/g, ' ')        // collapse line breaks + indentation
+			.replace(/\s{2,}/g, ' ')
+			.trim();
+	
 	const [values, setValues] = useState<FormValues>({
-		title: '',
-		description: '',
-		content: '',
-		tagList: '',
-		imageUrl: '',
+		title: initialPost?.title ?? '',
+		description: normalizeDescription(initialPost?.description) ?? '',
+		content: initialPost?.content ?? '',
+		tagList: initialPost?.tags ?? '',
+		imageUrl: initialPost?.imageUrl ?? '',
+
 	});
 
 	const [errors, setErrors] = useState<FormErrors>({});
@@ -71,6 +92,23 @@ export default function Editor() {
 
 	const contentRef = useRef<HTMLTextAreaElement | null>(null);
 	const savedCursor = useRef<{ start: number; end: number } | null>(null);
+	
+	const previousShowPreview = useRef(showPreview);
+
+
+	useLayoutEffect(() => {
+	if (previousShowPreview.current && !showPreview) {
+		const el = contentRef.current;
+		const cursor = savedCursor.current;
+
+		if (el && cursor) {
+		el.focus();
+		el.setSelectionRange(cursor.start, cursor.end);
+		}
+	}
+
+	previousShowPreview.current = showPreview;
+	}, [showPreview]);
 
 	const handleChange =
 		(field: keyof FormValues) =>
@@ -97,14 +135,6 @@ export default function Editor() {
 		}
 
 		setShowPreview(false);
-		requestAnimationFrame(() => {
-			const el = contentRef.current;
-			const cursor = savedCursor.current;
-			if (el && cursor) {
-				el.focus();
-				el.setSelectionRange(cursor.start, cursor.end);
-			}
-		});
 	};
 
 	const handleSave = async (event: React.FormEvent) => {
@@ -131,7 +161,7 @@ export default function Editor() {
 				return;
 			}
 
-			router.push('/');
+			//router.push('/');
 		}
 		
 	};
@@ -171,7 +201,6 @@ export default function Editor() {
 				id="description"
 				value={values.description}
 				onChange={handleChange("description")}
-				maxLength={MAX_DESCRIPTION_LENGTH}
 				rows={3}
 				className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
 				/>
@@ -207,8 +236,11 @@ export default function Editor() {
 					className="w-full rounded-lg border border-slate-300 px-3 py-2 font-mono text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
 				/>
 				) : (
-				<div className="prose max-w-none min-h-52 rounded-lg border border-slate-300 bg-slate-50 p-4">
-					<pre className="whitespace-pre-wrap break-words font-mono text-sm text-slate-900">{values.content || 'No content'}</pre>
+				<div
+					data-test-id="content-preview"
+					className="prose max-w-none min-h-52 rounded-lg border border-slate-300 bg-slate-50 p-4"
+				>
+					<div dangerouslySetInnerHTML={{ __html: renderMarkdown(values.content) }} />
 				</div>
 				)}
 
@@ -217,11 +249,11 @@ export default function Editor() {
 
 			<div className="grid gap-5 md:grid-cols-2">
 				<div className="space-y-2">
-				<label htmlFor="tags" className="block text-sm font-medium text-slate-800">
-					Tag List (comma-separated)
+				<label htmlFor="Tags" className="block text-sm font-medium text-slate-800">
+					Tags
 				</label>
 				<input
-					id="tags"
+					id="Tags"
 					type="text"
 					value={values.tagList}
 					onChange={handleChange("tagList")}
@@ -246,15 +278,15 @@ export default function Editor() {
 			</div>
 
 			<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-				<p className="mb-2 text-sm font-medium text-slate-700">Image Preview</p>
+				<p className="mb-2 text-sm font-medium text-slate-700">Image Review</p>
 				{isValidUrl(values.imageUrl.trim()) ? (
 				<img
 					src={values.imageUrl.trim()}
-					alt="Preview"
+					alt="Review"
 					className="max-h-64 w-full rounded-lg border border-slate-200 object-cover"
 				/>
 				) : (
-				<p className="text-sm text-slate-500">Enter a valid image URL to preview.</p>
+				<p className="text-sm text-slate-500">Enter a valid image URL to review.</p>
 				)}
 			</div>
 			</div>
