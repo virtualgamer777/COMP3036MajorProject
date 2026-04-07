@@ -21,7 +21,7 @@ export function AdminListItem({ post }: { post: Post }) {
       {/* Info side */}
       <div className="flex-1 p-4 text-secondary">
         <div className="mb-1 text-xs uppercase tracking-wide">
-          {post.date.toLocaleString("en-AU", {
+          Posted on {post.date.toLocaleString("en-US", {
             day: "2-digit",
             month: "short",
             year: "numeric",
@@ -36,7 +36,7 @@ export function AdminListItem({ post }: { post: Post }) {
         {/* <p className="mt-2 text-sm text-secondary">{post.description}</p> */}
 
         <p className="mt-4 text-sm text-secondary">
-          {"#" + post.tags.split(",").join(" #")}
+          {"#" + post.tags.split(",").join(", #")}
         </p>
 
         <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 text-sm">

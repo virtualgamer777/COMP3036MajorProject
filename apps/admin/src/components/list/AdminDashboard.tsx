@@ -40,9 +40,15 @@ function filterAndSortPosts(
   if (date) {
     const day = Number(date.slice(0, 2));
     const month = Number(date.slice(2, 4));
+    //const day = 1;
+    //const month = 1;
     const year = Number(date.slice(4, 8));
     const filterDate = new Date(year, month - 1, day);
-    result = result.filter((p) => p.date.toDateString() === filterDate.toDateString());
+    result = result.filter((p) => {
+      const postDate = new Date(p.date);
+      postDate.setHours(0, 0, 0, 0);
+      return postDate.getTime() >= filterDate.getTime();
+    });
   }
 
   if (visibility === "active") result = result.filter((p) => p.active);
@@ -140,13 +146,17 @@ export function AdminDashboard({
             <input
               id="dateFilter"
               type="text"
+              inputMode="numeric"
               value={query.date}
-              onChange={(event) => updateQuery({ ...query, date: event.target.value })}
+              onChange={(event) => {
+                const digitsOnly = event.target.value.replace(/\D/g, "").slice(0, 8);
+                updateQuery({ ...query, date: digitsOnly });
+              }}
               placeholder="DDMMYYYY"
+              pattern="\d{8}"
               className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-500"
             />
           </div>
-
           <div>
             <label htmlFor="visibilityFilter" className="mb-1 block text-sm font-medium text-gray-700">
               Filter by Visibility:
