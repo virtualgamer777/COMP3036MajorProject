@@ -163,6 +163,9 @@ export default function Editor({ initialPost = null }: EditorProps) {
 
 			//router.push('/');
 		}
+		else {
+			setSaveError("Please fix the errors before saving");
+		}
 		
 	};
 
@@ -280,7 +283,8 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			<div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
 				<p className="mb-2 text-sm font-medium text-slate-700">Image Review</p>
 				{isValidUrl(values.imageUrl.trim()) ? (
-				<img
+				<img 
+					data-test-id="image-preview"
 					src={values.imageUrl.trim()}
 					alt="Review"
 					className="max-h-64 w-full rounded-lg border border-slate-200 object-cover"
