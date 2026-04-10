@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import type { Post } from "@repo/db/data";
 import { AdminList } from "./List";
 
+//filter options
 type QueryState = {
   q: string;
   tag: string;
@@ -23,6 +24,7 @@ function filterAndSortPosts(
 ): Post[] {
   let result = posts;
 
+  //filter by content in post
   if (content) {
     const q = content.toLowerCase();
     result = result.filter(
@@ -32,11 +34,13 @@ function filterAndSortPosts(
     );
   }
 
+  //filter by selected tags
   if (tag) {
     const q = tag.toLowerCase();
     result = result.filter((p) => p.tags.toLowerCase().includes(q));
   }
 
+  //filter by date, selected date or above
   if (date) {
     const day = Number(date.slice(0, 2));
     const month = Number(date.slice(2, 4));
@@ -50,10 +54,11 @@ function filterAndSortPosts(
       return postDate.getTime() >= filterDate.getTime();
     });
   }
-
+  //if visibility is filtered
   if (visibility === "active") result = result.filter((p) => p.active);
   if (visibility === "inactive") result = result.filter((p) => !p.active);
 
+  //set order posts are displayed
   return [...result].sort((a, b) => {
     switch (sort) {
       case "title-asc":
@@ -78,8 +83,10 @@ export function AdminDashboard({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  //filter query
   const [query, setQuery] = useState<QueryState>(initialQuery);
 
+  //memoize filtered posts so updated only occur on change
   const filteredPosts = useMemo(
     () =>
       filterAndSortPosts(
@@ -93,9 +100,11 @@ export function AdminDashboard({
     [posts, query],
   );
 
+
   const updateQuery = (nextQuery: QueryState) => {
     setQuery(nextQuery);
 
+    //set the url query on update
     const params = new URLSearchParams();
     if (nextQuery.q) params.set("q", nextQuery.q);
     if (nextQuery.tag) params.set("tag", nextQuery.tag);

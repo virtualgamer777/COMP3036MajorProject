@@ -33,9 +33,10 @@ const isValidUrl = (value: string) => {
 	}
 };
 
+//validate form data
 const validate = (values: FormValues): FormErrors => {
 	const errors: FormErrors = {};
-	
+	//make sure values exist
 	if (!values.title.trim()) errors.title = 'Title is required.';
 	if (!values.description.trim()) errors.description = 'Description is required.';
 	if (values.description.length > MAX_DESCRIPTION_LENGTH) {
@@ -43,15 +44,18 @@ const validate = (values: FormValues): FormErrors => {
 	}
 	if (!values.content.trim()) errors.content = 'Content is required.';
 
+	//get tags & split them up
 	const tags = values.tagList
 		.split(',')
 		.map((t) => t.trim())
 		.filter(Boolean);
 
+	//make sure there is a tag
 	if (!values.tagList.trim() || tags.length === 0) {
 		errors.tagList = 'At least one tag is required.';
 	}
 
+	//ensure image exists and has a valid url
 	if (!values.imageUrl.trim()) {
 		errors.imageUrl = 'Image URL is required.';
 	} else if (!isValidUrl(values.imageUrl.trim())) {
@@ -61,6 +65,7 @@ const validate = (values: FormValues): FormErrors => {
 	return errors;
 };
 
+//display the markdown as markdown
 const renderMarkdown = (markdown: string) => {
 	if (!markdown.trim()) {
 		return '<em>No content</em>';
@@ -71,6 +76,7 @@ const renderMarkdown = (markdown: string) => {
 
 export default function Editor({ initialPost = null }: EditorProps) {
 	const router = useRouter();
+	//fixes an issue where wrapped parts are new lines
 	const normalizeDescription = (value?: string | null) =>
 		(value ?? '')
 			.replace(/^"(.*)"$/s, '$1')       // strips wrapping quotes if present
@@ -78,6 +84,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			.replace(/\s{2,}/g, ' ')
 			.trim();
 	
+	//set states for updating the page
 	const [values, setValues] = useState<FormValues>({
 		urlId: initialPost?.urlId ?? '',
 		title: initialPost?.title ?? '',
@@ -87,18 +94,18 @@ export default function Editor({ initialPost = null }: EditorProps) {
 		imageUrl: initialPost?.imageUrl ?? '',
 
 	});
-
 	const [errors, setErrors] = useState<FormErrors>({});
 	const [showPreview, setShowPreview] = useState(false);
 	const [saveAttempted, setSaveAttempted] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
 
+	//set references
 	const contentRef = useRef<HTMLTextAreaElement | null>(null);
 	const savedCursor = useRef<{ start: number; end: number } | null>(null);
 	
 	const previousShowPreview = useRef(showPreview);
 
-
+	//fixes issue where tests expects preview immediately
 	useLayoutEffect(() => {
 	if (previousShowPreview.current && !showPreview) {
 		const el = contentRef.current;
@@ -113,6 +120,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 	previousShowPreview.current = showPreview;
 	}, [showPreview]);
 
+	//handle change in any value
 	const handleChange =
 		(field: keyof FormValues) =>
 		(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -123,7 +131,8 @@ export default function Editor({ initialPost = null }: EditorProps) {
 				setErrors(validate(next));
 			}
 		};
-
+	
+	//change whether markdown is displayed
 	const togglePreview = () => {
 		if (!showPreview) {
 			const el = contentRef.current;
@@ -140,6 +149,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 		setShowPreview(false);
 	};
 
+	//save post
 	const handleSave = async (event: React.FormEvent) => {
 		event.preventDefault();
 		setSaveAttempted(true);
@@ -172,6 +182,10 @@ export default function Editor({ initialPost = null }: EditorProps) {
 				setSaveError('Unable to save post. Please try again.');
 				return;
 			}
+			if(values.urlId.length <= 0)
+			{
+				values.urlId = toUrlPath(values.title.trim());
+			}
 
 			//router.push('/');
 		}
@@ -181,8 +195,10 @@ export default function Editor({ initialPost = null }: EditorProps) {
 		
 	};
 
+	//display any errors
 	const showError = (field: keyof FormValues) => saveAttempted && errors[field];
 
+	//page
 	return (
 		<form
 			onSubmit={handleSave}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
 
+//layout for home page
 export async function AppLayout({
   children,
   query,

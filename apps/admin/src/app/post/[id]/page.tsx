@@ -17,6 +17,7 @@ export default async function Page({
     redirect('/');
   }
 
+  //get existing post
   const { id } = await params;
   const post = getPosts().find((p) => p.urlId === id);
 

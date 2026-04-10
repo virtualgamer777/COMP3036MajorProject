@@ -2,9 +2,11 @@ import { reset, posts } from "./data.js";
 
 
 export async function seed() {
+  //reset data by calling endpoint
   const response = await fetch("http://localhost:3002/api/seed", {
     method: "POST",
   });
+  //catch errors
   if (!response.ok) {
     const body = await response.text().catch(() => "");
     throw new Error(`Failed to reset posts: ${response.status} ${body}`);

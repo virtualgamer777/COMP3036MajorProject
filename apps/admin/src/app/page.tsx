@@ -1,6 +1,6 @@
 "use server"
 
-import { getPosts, Post } from "@repo/db/data";
+import { getPosts } from "@repo/db/data";
 import { isLoggedIn } from "../utils/auth";
 import styles from "./page.module.css";
 import Login from "../components/auth/login";
@@ -8,6 +8,7 @@ import { AppLayout } from "../components/layout/AppLayout";
 import Link from "next/link";
 import { AdminDashboard } from "../components/list/AdminDashboard";
 
+//filter variables
 type HomeProps = {
   searchParams?: Promise<{ error?: string; q?: string; tag?: string; date?: string; visibility?: string; sort?: string }>;
 };
@@ -25,7 +26,7 @@ export default async function Home({ searchParams }: HomeProps) {
   } 
 
   //console.log(getPosts());
-
+  //get params to pass through to admin dashboard
   const params = await searchParams;
 
 
