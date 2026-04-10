@@ -4,9 +4,11 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Post } from '@repo/db/data';
 import { marked } from 'marked';
+import { toUrlPath } from '@repo/utils/url';
 
 
 type FormValues = {
+	urlId: string;
 	title: string;
 	description: string;
 	content: string;
@@ -33,7 +35,7 @@ const isValidUrl = (value: string) => {
 
 const validate = (values: FormValues): FormErrors => {
 	const errors: FormErrors = {};
-
+	
 	if (!values.title.trim()) errors.title = 'Title is required.';
 	if (!values.description.trim()) errors.description = 'Description is required.';
 	if (values.description.length > MAX_DESCRIPTION_LENGTH) {
@@ -77,6 +79,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			.trim();
 	
 	const [values, setValues] = useState<FormValues>({
+		urlId: initialPost?.urlId ?? '',
 		title: initialPost?.title ?? '',
 		description: normalizeDescription(initialPost?.description) ?? '',
 		content: initialPost?.content ?? '',
@@ -143,6 +146,15 @@ export default function Editor({ initialPost = null }: EditorProps) {
 		setSaveError(null);
 
 		const nextErrors = validate(values);
+		// if(values.urlId?.trim().length <= 0)
+		// {
+		// 	let newValues = values;
+		// 	setValues({
+        // 		...values,
+        // 		urlId: "", // or null if the type allows it
+    	// 	});
+		// 	setValues(values);
+		// }
 		setErrors(nextErrors);
 
 		if (Object.keys(nextErrors).length === 0) {
@@ -295,13 +307,21 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			</div>
 			</div>
 
-			<div className="flex justify-end">
-			<button
-				type="submit"
-				className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-			>
-				Save
-			</button>
+			<div className="flex items-center justify-between">
+				<button
+					type="button"
+					onClick={() => router.back()}
+					className="rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-700 transition bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-slate-300"
+				>
+					Back
+				</button>
+
+				<button
+					type="submit"
+					className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+				>
+					Save
+				</button>
 			</div>
 			{saveError ? <p className="text-sm text-red-600">{saveError}</p> : null}
 		</form>

@@ -8,7 +8,7 @@ export function AdminListItem({ post }: { post: Post }) {
   return (
     <article data-test-id={`blog-post-${post.id}`} className="flex flex-col md:flex-row">
       {/* Image side */}
-      <Link href={`/post/${toUrlPath(post.title)}`} className="block focus:outline-none outline-none">
+      <Link href={`/post/${post.urlId}`} className="block focus:outline-none outline-none">
         <div className="md:w-56 md:flex-shrink-0">
           <img
             src={post.imageUrl}
@@ -29,7 +29,7 @@ export function AdminListItem({ post }: { post: Post }) {
           &nbsp;&nbsp;{post.category}
         </div>
 
-        <Link href={`/post/${toUrlPath(post.title)}`} className="block">
+        <Link href={`/post/${post.urlId}`} className="block">
           {post.title}
         </Link>
 

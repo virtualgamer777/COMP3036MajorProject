@@ -31,17 +31,20 @@ export async function POST(request: Request) {
 		return NextResponse.json({ error: 'Invalid post payload.' }, { status: 400 });
 	}
 
+	let exists = typeof payload.urlId === 'string' && payload.urlId.trim().length > 0;
+
+
 	const normalizedUrlId = isNonEmpty(payload.urlId)
 		? payload.urlId.trim()
 		: toUrlPath(payload.title);
 
-	const existingIndex = posts.findIndex((post) => {
-		if (typeof payload.id === 'number') {
-			return post.id === payload.id;
-		}
+	// const existingIndex = posts.findIndex((post) => {
+	// 	if (typeof payload.id === 'number') {
+	// 		return post.id === payload.id;
+	// 	}
 
-		return post.urlId === normalizedUrlId;
-	});
+	// 	return post.urlId === normalizedUrlId;
+	// });
 
 	const normalizedTags = payload.tagList
 		.split(',')
@@ -49,8 +52,13 @@ export async function POST(request: Request) {
 		.filter(Boolean)
 		.join(',');
 
-	if (existingIndex >= 0) {
-		const existingPost = posts[existingIndex];
+
+	if (exists) {
+		const existingPost = posts.find((post) => normalizedUrlId === post.urlId);
+
+		const existingIndex = posts.findIndex(
+    		(post) => post.urlId === normalizedUrlId
+		);
 
 		if (!existingPost) {
 			return NextResponse.json({ error: 'Post lookup failed.' }, { status: 500 });

@@ -110,7 +110,14 @@ export const initialPosts: Post[] = [
   },
 ];
 
-export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = initialPosts);
+const clonePosts = () => initialPosts.map((p) => ({ ...p, date: new Date(p.date) }));
+
+export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
+
+export function reset() {
+  posts.length = 0;
+  posts.push(...clonePosts());
+}
 
 export function getPosts(): Post[] {
   return posts;
