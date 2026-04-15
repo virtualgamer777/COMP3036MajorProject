@@ -17,6 +17,7 @@ test.describe("ADMIN LIST SCREEN", () => {
     },
     async ({ userPage }) => {
       await userPage.goto("/");
+      // console.log(await userPage.locator("body").innerHTML());
 
       await expect(await userPage.locator("article").count()).toBe(4);
     },

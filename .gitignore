@@ -5,6 +5,7 @@ node_modules
 .pnp
 .pnp.js
 .auth
+.pnpm-store
 dev.db
 
 # Local env files

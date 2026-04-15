@@ -57,6 +57,7 @@ test.describe("ADMIN UPDATE SCREEN", () => {
 
       // cannot be longer than 200
       await userPage.getByLabel("Description").fill("a".repeat(201));
+      //console.log(await userPage.getByLabel("Description").allTextContents());
       await saveButton.click();
       await expect(
         userPage.getByText(
@@ -65,6 +66,7 @@ test.describe("ADMIN UPDATE SCREEN", () => {
       ).toBeVisible();
 
       await userPage.getByLabel("Description").fill("a".repeat(200));
+      //console.log(await userPage.getByLabel("Description").allTextContents());
       await saveButton.click();
       await expect(
         userPage.getByText(
