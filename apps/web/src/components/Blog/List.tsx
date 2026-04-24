@@ -1,9 +1,11 @@
+"use server"
+
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import Link from "next/link";
 import { BlogListItem } from "./ListItem";
 
-export function BlogList({ posts }: { posts: Post[] }) {
+export async function BlogList({ posts }: { posts: Post[] }) {
   //if there are no posts provided, display that
   if (posts.length === 0)
   {

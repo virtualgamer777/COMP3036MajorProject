@@ -1,6 +1,8 @@
+"use server"
+
 import Link from "next/link";
 
-export function SummaryItem({
+export async function SummaryItem({
   name,
   link,
   count,

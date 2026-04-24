@@ -1,9 +1,11 @@
+"use server"
+
 import { categories } from "@/functions/categories";
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import { SummaryItem } from "./SummaryItem";
 
-export function CategoryList({ posts }: { posts: Post[] }) {
+export async function CategoryList({ posts }: { posts: Post[] }) {
   // TODO: Implement proper category list
   
   const staticCategories = [

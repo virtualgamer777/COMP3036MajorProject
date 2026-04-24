@@ -1,4 +1,49 @@
 import { client } from "./client.js";
+import type { Post as DBPost}  from "@prisma/client";
+
+//returns all like objects
+export async function getLikes(post: Post) {
+  const rows = await client.db.like.findMany({
+    where: {
+      postId: post.id,
+    },
+  });
+  const likes: Likes[] = rows.map((row: any) => ({
+    postID: row.postId,
+    userIP: row.userIP
+  }));
+  return likes;
+}
+
+export async function dislike(userIP: string, postID: number) {
+  await client.db.like.deleteMany({
+    where: {
+      postId: postID,
+      userIP,
+    },
+  });
+
+  const post = (await getPosts()).find((post) => post.id === postID);
+  if (post && post.likes > 0) {
+    post.likes -= 1;
+  }
+}
+
+export async function addLike(userIP: string, postID: number) {
+  await client.db.like.create({
+    data: {
+      postId: postID,
+      userIP,
+    },
+  });
+  (await getPosts()).find((post) => post.id == postID)!.likes+=1;
+}
+
+export type Likes = {
+  postID: number
+  userIP: string
+}
+
 
 export type Post = {
   id: number;
@@ -117,18 +162,24 @@ const clonePosts = () => initialPosts.map((p) => ({ ...p, date: new Date(p.date)
 export async function retrieveAllPosts() {
   const rows = await client.db.post.findMany({
     orderBy: { id: "asc" },
+    include: {
+      _count: {
+        select: { Likes: true },
+      },
+    },
   });
-  const tempPosts: Post[] = rows.map((row) => ({
+  //'console.log(rows);
+  const tempPosts: Post[] = rows.map((row: any) => ({
     id: row.id,
     urlId: row.urlId,
     title: row.title,
-    content: "",
-    description: "",
-    imageUrl: "",
+    content: row.content,
+    description: row.description,
+    imageUrl: row.imageUrl,
     date: row.date,
-    category: "",
+    category: row.category,
     views: row.views,
-    likes: 0,
+    likes: row._count.Likes,
     tags: row.tags,
     active: row.active,
   }));
@@ -137,19 +188,24 @@ export async function retrieveAllPosts() {
 }
 
 // export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
-export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = await retrieveAllPosts());
+//export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = await retrieveAllPosts());
 
+export const posts: Post[] = globalThis.__postsStore ?? [];
+globalThis.__postsStore = posts;
 
 export async function reset() {
+  const currentPosts = await retrieveAllPosts();
   posts.length = 0;
-  posts.push(...await retrieveAllPosts());
+  posts.push(...currentPosts);
 }
 
-export function getPosts(): Post[] {
-  return posts;
+export async function getPosts(): Promise<Post[]> {
+  await reset();
+  return  posts;
 }
 
 export async function appendPost(post: Post) {
+  await reset();
   await client.db.post.create({
     data: {
       title: post.title,
@@ -172,6 +228,7 @@ export async function appendPost(post: Post) {
 }
 
 export async function upsertPost(post: Post) {
+  await reset();
   const existing = posts.find(
     (current) => current.id === post.id || current.urlId === post.urlId,
   );
@@ -180,6 +237,10 @@ export async function upsertPost(post: Post) {
     where: { urlId: post.urlId },
     update: {
       title: post.title,
+      content: post.content,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      category: post.category,
       tags: post.tags,
       date: post.date,
       views: post.views,
@@ -189,9 +250,14 @@ export async function upsertPost(post: Post) {
       id: post.id,
       urlId: post.urlId,
       title: post.title,
+      content: post.content,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      category: post.category,
       tags: post.tags,
       date: post.date,
       views: post.views,
+      likes: post.likes,
       active: post.active,
     },
   });

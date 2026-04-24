@@ -1,3 +1,5 @@
+"use server"
+
 import { history } from "@/functions/history";
 import { type Post } from "@repo/db/data";
 import { JSX } from "react";

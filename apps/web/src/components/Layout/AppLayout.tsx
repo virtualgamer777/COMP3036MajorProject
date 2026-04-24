@@ -1,3 +1,5 @@
+"use server"
+
 import type { PropsWithChildren } from "react";
 import { Content } from "../Content";
 import { LeftMenu } from "../Menu/LeftMenu";

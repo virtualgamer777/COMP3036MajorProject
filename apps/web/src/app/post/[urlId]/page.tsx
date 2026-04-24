@@ -1,9 +1,11 @@
+"use server"
+
 import { BlogDetail } from "@/components/Blog/Detail";
-import { BlogListItem } from "@/components/Blog/ListItem";
+//import { BlogListItem } from "@/components/Blog/ListItem";
 import { AppLayout } from "@/components/Layout/AppLayout";
-import { Post, posts } from "@repo/db/data";
+import { Post, getPosts } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
-import { Marked, marked } from "marked";
+//import { Marked, marked } from "marked";
 
 
 export default async function Page({
@@ -12,6 +14,7 @@ export default async function Page({
   params: Promise<{ urlId: string }>;
 }) {
   const { urlId } = await params;
+  const posts = await getPosts();
   const post = posts.find((p) => String(toUrlPath(p.title)) === urlId); // get post
   if(!post) // return if not found
   {

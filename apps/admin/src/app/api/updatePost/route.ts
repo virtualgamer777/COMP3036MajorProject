@@ -18,7 +18,7 @@ const isNonEmpty = (value: unknown): value is string =>
 	typeof value === 'string' && value.trim().length > 0;
 
 export async function POST(request: Request) {
-	const posts = getPosts();
+	const posts = await getPosts();
 	
 	const payload = (await request.json()) as Partial<UpsertPostPayload>;
 	//make sure it's a valid submission

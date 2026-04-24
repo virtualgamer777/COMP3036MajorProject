@@ -1,8 +1,10 @@
+"use server"
+
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import Link from "next/link";
 
-export function BlogListItem({ post }: { post: Post }) {
+export async function BlogListItem({ post }: { post: Post }) {
   return (
     <article data-test-id={`blog-post-${post.id}`} className="flex flex-col md:flex-row">
       {/* Image side */}
