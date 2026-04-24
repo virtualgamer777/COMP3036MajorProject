@@ -1,3 +1,5 @@
+import { client } from "./client.js";
+
 export type Post = {
   id: number;
   urlId: string;
@@ -112,25 +114,90 @@ export const initialPosts: Post[] = [
 
 const clonePosts = () => initialPosts.map((p) => ({ ...p, date: new Date(p.date) }));
 
-export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
+export async function retrieveAllPosts() {
+  const rows = await client.db.post.findMany({
+    orderBy: { id: "asc" },
+  });
+  const tempPosts: Post[] = rows.map((row) => ({
+    id: row.id,
+    urlId: row.urlId,
+    title: row.title,
+    content: "",
+    description: "",
+    imageUrl: "",
+    date: row.date,
+    category: "",
+    views: row.views,
+    likes: 0,
+    tags: row.tags,
+    active: row.active,
+  }));
 
-export function reset() {
+  return tempPosts;
+}
+
+// export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
+export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = await retrieveAllPosts());
+
+
+export async function reset() {
   posts.length = 0;
-  posts.push(...clonePosts());
+  posts.push(...await retrieveAllPosts());
 }
 
 export function getPosts(): Post[] {
   return posts;
 }
 
-export function appendPost(post: Post) {
+export async function appendPost(post: Post) {
+  await client.db.post.create({
+    data: {
+      title: post.title,
+      content: post.content,
+      category: post.category,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      tags: post.tags
+        .split(",")
+        .map((p) => p.trim())
+        .join(","),
+      urlId: post.urlId,
+      active: post.active,
+      date: post.date,
+      id: post.id,
+      views: post.views,
+    },
+  });
   posts.push(post);
 }
 
-export function upsertPost(post: Post) {
-  const index = posts.findIndex((existing) => existing.id === post.id || existing.urlId === post.urlId);
-  if (index >= 0) {
-    posts[index] = post;
+export async function upsertPost(post: Post) {
+  const existing = posts.find(
+    (current) => current.id === post.id || current.urlId === post.urlId,
+  );
+
+  await client.db.post.upsert({
+    where: { urlId: post.urlId },
+    update: {
+      title: post.title,
+      tags: post.tags,
+      date: post.date,
+      views: post.views,
+      active: post.active,
+    },
+    create: {
+      id: post.id,
+      urlId: post.urlId,
+      title: post.title,
+      tags: post.tags,
+      date: post.date,
+      views: post.views,
+      active: post.active,
+    },
+  });
+
+  if (existing) {
+    Object.assign(existing, post);
     return;
   }
 

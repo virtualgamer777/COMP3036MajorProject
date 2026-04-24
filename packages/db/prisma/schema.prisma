@@ -14,6 +14,7 @@ model Post {
   id     Int      @id @default(autoincrement())
   urlId  String   @unique
   title  String
+  tags   String
   date   DateTime @default(now())
   views  Int      @default(0)
   active Boolean  @default(true)
