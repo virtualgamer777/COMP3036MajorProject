@@ -1,17 +1,18 @@
-import { getPosts, appendPost } from '@repo/db/data';
+import { getPosts, appendPost, upsertPost } from '@repo/db/data';
 import { toUrlPath } from '@repo/utils/url';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 //post
 type UpsertPostPayload = {
-	id?: number;
-	urlId?: string;
-	title: string;
-	description: string;
-	content: string;
-	tagList: string;
-	imageUrl: string;
+  id?: number;
+  urlId?: string;
+  title: string;
+  category: string;
+  description: string;
+  content: string;
+  tagList: string;
+  imageUrl: string;
 };
 
 const isNonEmpty = (value: unknown): value is string =>
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
 	//make sure it's a valid submission
 	if (
 		!isNonEmpty(payload.title) ||
+		!isNonEmpty(payload.category) ||
 		!isNonEmpty(payload.description) ||
 		!isNonEmpty(payload.content) ||
 		!isNonEmpty(payload.tagList) ||
@@ -73,13 +75,15 @@ export async function POST(request: Request) {
 			...existingPost,
 			urlId: normalizedUrlId,
 			title: payload.title.trim(),
+			category: payload.category.trim() || existingPost.category,
 			description: payload.description.trim(),
 			content: payload.content.trim(),
 			imageUrl: payload.imageUrl.trim(),
 			tags: normalizedTags,
 		};
 		//update existing post
-		posts[existingIndex] = updatedPost;
+		//posts[existingIndex] = updatedPost;
+		await upsertPost(updatedPost);
 		revalidatePath('/');
 		return NextResponse.json({ mode: 'updated', post: updatedPost }, { status: 200 });
 	}
@@ -90,11 +94,11 @@ export async function POST(request: Request) {
 		id: nextId,
 		urlId: normalizedUrlId,
 		title: payload.title.trim(),
+		category: payload.category.trim(),
 		description: payload.description.trim(),
 		content: payload.content.trim(),
 		imageUrl: payload.imageUrl.trim(),
 		date: new Date(),
-		category: 'General',
 		views: 0,
 		likes: 0,
 		tags: normalizedTags,

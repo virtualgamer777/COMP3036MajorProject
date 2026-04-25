@@ -4,7 +4,7 @@ import { reset } from '@repo/db/data';
 export async function POST(request: NextRequest) {
 	try {
 		//resets posts to initial values
-		reset();
+		await reset();
 		// Reset posts in your database
 		// Example: await db.post.deleteMany({});
 		// Or: await db.post.updateMany({}, { $set: { /* reset fields */ } });

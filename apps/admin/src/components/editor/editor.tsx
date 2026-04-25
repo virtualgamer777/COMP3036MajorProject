@@ -12,6 +12,7 @@ type FormValues = {
 	title: string;
 	description: string;
 	content: string;
+	category: string;
 	tagList: string;
 	imageUrl: string;
 };
@@ -38,6 +39,7 @@ const validate = (values: FormValues): FormErrors => {
 	const errors: FormErrors = {};
 	//make sure values exist
 	if (!values.title.trim()) errors.title = 'Title is required.';
+	if (!values.category.trim()) errors.category = "Category is required.";
 	if (!values.description.trim()) errors.description = 'Description is required.';
 	if (values.description.length > MAX_DESCRIPTION_LENGTH) {
 		errors.description = `Description is too long. Maximum is 200 characters`;
@@ -88,6 +90,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 	const [values, setValues] = useState<FormValues>({
 		urlId: initialPost?.urlId ?? '',
 		title: initialPost?.title ?? '',
+		category: initialPost?.category ?? "",
 		description: normalizeDescription(initialPost?.description) ?? '',
 		content: initialPost?.content ?? '',
 		tagList: initialPost?.tags ?? '',
@@ -98,6 +101,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 	const [showPreview, setShowPreview] = useState(false);
 	const [saveAttempted, setSaveAttempted] = useState(false);
 	const [saveError, setSaveError] = useState<string | null>(null);
+	const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
 
 	//set references
 	const contentRef = useRef<HTMLTextAreaElement | null>(null);
@@ -154,6 +158,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 		event.preventDefault();
 		setSaveAttempted(true);
 		setSaveError(null);
+		setSaveSuccess(null);
 
 		const nextErrors = validate(values);
 		// if(values.urlId?.trim().length <= 0)
@@ -186,6 +191,8 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			{
 				values.urlId = toUrlPath(values.title.trim());
 			}
+			setSaveSuccess("Post updated successfully");
+
 
 			//router.push('/');
 		}
@@ -222,6 +229,20 @@ export default function Editor({ initialPost = null }: EditorProps) {
 				className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
 				/>
 				{showError("title") && <p className="text-sm text-red-600">{errors.title}</p>}
+			</div>
+		
+			<div className="space-y-2">
+				<label htmlFor="category" className="block text-sm font-medium text-slate-800">
+					Category
+				</label>
+				<input
+					id="category"
+					type="text"
+					value={values.category}
+					onChange={handleChange("category")}
+					className="w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+				/>
+				{showError("category") && <p className="text-sm text-red-600">{errors.category}</p>}
 			</div>
 
 			<div className="space-y-2">
@@ -339,6 +360,7 @@ export default function Editor({ initialPost = null }: EditorProps) {
 					Save
 				</button>
 			</div>
+			{saveSuccess ? <p className="text-sm text-green-600">{saveSuccess}</p> : null}
 			{saveError ? <p className="text-sm text-red-600">{saveError}</p> : null}
 		</form>
 	);

@@ -25,7 +25,7 @@ export default function LikeButton({ postId, initialLikes, initiallyLiked }: Pro
 
 
   return (
-    <button
+    <button data-test-id="like-button"
       type="button"
       onClick={onLike}
       className={liked ? "text-pink-700 font-semibold" : "text-primary"}

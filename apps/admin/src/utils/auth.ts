@@ -12,6 +12,14 @@ export async function isLoggedIn() {
   // ASSIGNMENT 3
   // check that auth_token cookie exists and is valid
   const token = userCookies.get("auth_token")?.value;
+  if (!token) return false;
 
-  return token && jwt.verify(token, env.JWT_SECRET || "");
+  try {
+    jwt.verify(token, env.JWT_SECRET);
+    return true;
+  } catch {
+    return false;
+  }
+
+  // return token && jwt.verify(token, env.JWT_SECRET || "");
 }

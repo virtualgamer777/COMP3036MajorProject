@@ -43,11 +43,16 @@ setup(
     const apiContext = await playwright.request.newContext();
 
     await apiContext.post("/api/auth", {
-      data: JSON.stringify({ password: "123" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      form: { Password: "123" },
     });
+
+
+    // await apiContext.post("/api/auth", {
+    //   data: JSON.stringify({ password: "123" }),
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    // });
 
     await apiContext.storageState({ path: authFile });
   },

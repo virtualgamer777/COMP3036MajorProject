@@ -3,8 +3,23 @@
 import type { Post } from "@repo/db/data";
 import { toUrlPath } from "@repo/utils/url";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function AdminListItem({ post }: { post: Post }) {
+  const router = useRouter();
+  
+  const toggleActive = async () => {
+    const res = await fetch("/api/toggleActive", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ postId: post.id }),
+    });
+
+    if (!res.ok) return;
+
+    router.refresh();
+  };
+
   return (
     <article data-test-id={`blog-post-${post.id}`} className="flex flex-col md:flex-row">
       {/* Image side */}
@@ -42,7 +57,7 @@ export function AdminListItem({ post }: { post: Post }) {
         <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3 text-sm">
           <button
             type="button"
-            onClick={() => alert(`Post ${post.id} is ${post.active ? "Active" : "Inactive"}`)}
+            onClick={toggleActive}
             className="rounded-md border border-gray-300 px-3 py-1 text-sm font-medium hover:bg-gray-100"
           >
             {post.active ? "Active" : "Inactive"}
