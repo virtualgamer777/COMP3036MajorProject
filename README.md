@@ -62,80 +62,80 @@ Example implementation is in the image below.
 
 ### ADMIN HOME SCREEN
 
-- [ ] Shows Login screen if not logged
-- [ ] Shows List screen if logged
-- [ ] There must be a logout button
-- [ ] Clicking the logout button logs the user out
-- [ ] Authenticate the current client using a hard-coded password
-- [ ] Use a httpOnly cookie and name it "auth_token" to remember the signed-in state.
+- [x] Shows Login screen if not logged
+- [x] Shows List screen if logged
+- [x] There must be a logout button
+- [x] Clicking the logout button logs the user out
+- [x] Authenticate the current client using a hard-coded password
+- [x] Use a httpOnly cookie and name it "auth_token" to remember the signed-in state.
 
 ### ADMIN LIST SCREEN
 
-- [ ] Shows both active and inactive posts
-- [ ] Article list is only accessible to logged-in users.
-- [ ] There is a filter screen that allows filtering posts by:
-  - [ ] Title or content
-  - [ ] Tags
-  - [ ] Date
-  - [ ] Visibility
-- [ ] You can combine multiple filters
-- [ ] Users can sort posts by name or creation date, both ascending and descending
-- [ ] The post list displays a list of filtered items with the following information:
-  - [ ] The list post item displays the image, title of the post
-  - [ ] The list post items display metadata such as category, tags, and "active" status.
-  - [ ] The active status is a button that, on click, just displays a message
-- [ ] Clicking on the title takes the user to the MODIFY SCREEN, allowing the user to modify the current post
-- [ ] There is a button to create new posts
-- [ ] Clicking on the "Create Post" button takes the user to the CREATE SCREEN
+- [x] Shows both active and inactive posts
+- [x] Article list is only accessible to logged-in users.
+- [x] There is a filter screen that allows filtering posts by:
+  - [x] Title or content
+  - [x] Tags
+  - [x] Date
+  - [x] Visibility
+- [x] You can combine multiple filters
+- [x] Users can sort posts by name or creation date, both ascending and descending
+- [x] The post list displays a list of filtered items with the following information:
+  - [x] The list post item displays the image, title of the post
+  - [x] The list post items display metadata such as category, tags, and "active" status.
+  - [x] The active status is a button that, on click, just displays a message
+- [x] Clicking on the title takes the user to the MODIFY SCREEN, allowing the user to modify the current post
+- [x] There is a button to create new posts
+- [x] Clicking on the "Create Post" button takes the user to the CREATE SCREEN
 
 ### ADMIN CREATE and UPDATE screen
 
 Both create and update screens display the same UI, but the update screen preloads the data into fields.
 
-- [ ] Page is only accessible to logged in user
-- [ ] There must be the following fields which must be validated for errors:
-  - [ ] Title (`input, string`)
-  - [ ] Description (textarea, string, max 200 characters)
-  - [ ] Content (`textarea, markdown string`)
-  - [ ] Tag List (`input, string`) shows a comma-separated list of tags.
-  - [ ] Image URL (`input, URL`)
-- [ ] Under the Description is a "Preview" button that replaces the text area with a rendered markdown string and changes the title to "Close Preview".
-- [ ] When the preview is closed, the cursor must be in the same position as before opening the preview.
-- [ ] Under the image input is an image preview.
-- [ ] User can click on the "Save" button that displays an error ui if one of the fields is not specified or valid.
+- [x] Page is only accessible to logged in user
+- [x] There must be the following fields which must be validated for errors:
+  - [x] Title (`input, string`)
+  - [x] Description (textarea, string, max 200 characters)
+  - [x] Content (`textarea, markdown string`)
+  - [x] Tag List (`input, string`) shows a comma-separated list of tags.
+  - [x] Image URL (`input, URL`)
+- [x] Under the Description is a "Preview" button that replaces the text area with a rendered markdown string and changes the title to "Close Preview".
+- [x] When the preview is closed, the cursor must be in the same position as before opening the preview.
+- [x] Under the image input is an image preview.
+- [x] User can click on the "Save" button that displays an error ui if one of the fields is not specified or valid.
 
 ## 👾 Requirements: Assignment 2.3
 
 ### BACKEND / CLIENT
 
-- [ ] Data is loaded from the database backend
-- [ ] Data filtering is done server side and only filtered data is sent to client
-- [ ] Each visit of the page increases the post "views" count by one
-- [ ] User can "like" the post on the detail screen, NOT on the list screen (hint, create the `/api/likes/route.ts` route and implement the needed handlers)
-- [ ] Liking the post increases the like count by one
-- [ ] User can like the post only once (use IP)
-- [ ] User can unlike the post, decreasing the like post by one
+- [x] Data is loaded from the database backend
+- [x] Data filtering is done server side and only filtered data is sent to client
+- [x] Each visit of the page increases the post "views" count by one
+- [x] User can "like" the post on the detail screen, NOT on the list screen (hint, create the `/api/likes/route.ts` route and implement the needed handlers)
+- [x] Liking the post increases the like count by one
+- [x] User can like the post only once (use IP)
+- [x] User can unlike the post, decreasing the like post by one
 
 ### BACKEND / ADMIN / AUTHORISATION
 
 > For these two requirements we do not have End 2 End tests and will be checked manually.
 
-- [ ] The password is checked on server in the `/api/auth` route
-- [ ] The POST method is used for login
-- [ ] The DELETE method is used for logout
-- [ ] The admin home page checks for the presence of JWT token and verifies it, if the token does not exist or is invalid, displays the login control.
+- [x] The password is checked on server in the `/api/auth` route
+- [x] The POST method is used for login
+- [x] The DELETE method is used for logout
+- [x] The admin home page checks for the presence of JWT token and verifies it, if the token does not exist or is invalid, displays the login control.
 
 ### BACKEND / ADMIN / LIST SCREEN
 
-- [ ] Logged in user can activate / deactivate a post clicking on the activate button, automatically saving changes
+- [x] Logged in user can activate / deactivate a post clicking on the activate button, automatically saving changes
 
 ### BACKEND / ADMIN / UPDATE SCREEN
 
-- [ ] Logged in user can save changes to database, if the form is validated
+- [x] Logged in user can save changes to database, if the form is validated
 
 ### BACKEND / ADMIN / CREATE SCREEN
 
-- [ ] Logged in user can create a new post to the database, if the form is validated
+- [x] Logged in user can create a new post to the database, if the form is validated
 
 ## Prerequisites
 

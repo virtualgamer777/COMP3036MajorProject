@@ -15,25 +15,82 @@ type UpsertPostPayload = {
   imageUrl: string;
 };
 
+//redefine here for route
+type FormErrors = Partial<Record<keyof UpsertPostPayload, string>>;
+
+
+//don't judge me
+const MAX_DESCRIPTION_LENGTH = 200;
+
+//redefined here for use
+function isValidUrl(value: string): boolean {
+	try {
+		const url = new URL(value);
+		return ['http:', 'https:'].includes(url.protocol);
+	} catch {
+		return false;
+	}
+};
+
+//rewrite of validate to work server side
+function validate(values: Partial<UpsertPostPayload>): FormErrors {
+    const errors: FormErrors = {};
+
+    const title = values.title?.trim() ?? '';
+    const category = values.category?.trim() ?? '';
+    const description = values.description?.trim() ?? '';
+    const content = values.content?.trim() ?? '';
+    const tagList = values.tagList?.trim() ?? '';
+    const imageUrl = values.imageUrl?.trim() ?? '';
+
+    // make sure values exist
+    if (!title) errors.title = 'Title is required.';
+    if (!category) errors.category = 'Category is required.';
+    if (!description) errors.description = 'Description is required.';
+    if (description.length > MAX_DESCRIPTION_LENGTH) {
+        errors.description = `Description is too long. Maximum is ${MAX_DESCRIPTION_LENGTH} characters`;
+    }
+    if (!content) errors.content = 'Content is required.';
+
+    // get tags & split them up
+    const tags = tagList.split(',').map((t) => t.trim()).filter(Boolean);
+
+    // make sure there is a tag
+    if (!tagList || tags.length === 0) {
+        errors.tagList = 'At least one tag is required.';
+    }
+
+    // ensure image exists and has a valid url
+    if (!imageUrl) {
+        errors.imageUrl = 'Image URL is required.';
+    } else if (!isValidUrl(imageUrl)) {
+        errors.imageUrl = 'This is not a valid URL';
+    }
+
+    return errors;
+}
+
 const isNonEmpty = (value: unknown): value is string =>
 	typeof value === 'string' && value.trim().length > 0;
 
 export async function POST(request: Request) {
 	const posts = await getPosts();
 	
-	const payload = (await request.json()) as Partial<UpsertPostPayload>;
+	const initialPayload = (await request.json()) as Partial<UpsertPostPayload>;
 	//make sure it's a valid submission
-	if (
-		!isNonEmpty(payload.title) ||
-		!isNonEmpty(payload.category) ||
-		!isNonEmpty(payload.description) ||
-		!isNonEmpty(payload.content) ||
-		!isNonEmpty(payload.tagList) ||
-		!isNonEmpty(payload.imageUrl)
-	) {
-		return NextResponse.json({ error: 'Invalid post payload.' }, { status: 400 });
+	const errors = validate(initialPayload);
+	if(Object.keys(errors).length > 0) {
+		return NextResponse.json(
+			{
+				error: 'Invalid post payload.',
+				fieldErrors: errors,
+			},
+			{ status: 400}
+		);
 	}
-	//if provided, post already exists
+	
+	const payload = { ...initialPayload, urlId: initialPayload.urlId?.trim() ?? '', title: (initialPayload.title ?? '').trim(), category: (initialPayload.category ?? '').trim(), description: (initialPayload.description ?? '').trim(), content: (initialPayload.content ?? '').trim(), tagList: (initialPayload.tagList ?? '').trim(), imageUrl: (initialPayload.imageUrl ?? '').trim() } as UpsertPostPayload;
+
 	let exists = typeof payload.urlId === 'string' && payload.urlId.trim().length > 0;
 
 
