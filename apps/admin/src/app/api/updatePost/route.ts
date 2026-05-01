@@ -2,6 +2,7 @@ import { getPosts, appendPost, upsertPost } from '@repo/db/data';
 import { toUrlPath } from '@repo/utils/url';
 import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
+import { isLoggedIn } from '../../../utils/auth';
 
 //post
 type UpsertPostPayload = {
@@ -74,6 +75,15 @@ const isNonEmpty = (value: unknown): value is string =>
 	typeof value === 'string' && value.trim().length > 0;
 
 export async function POST(request: Request) {
+	if(!(await isLoggedIn())) {
+		NextResponse.json(
+			{
+				error: "Unauthorised User",
+			},
+			{status: 401}
+		)
+	}
+	
 	const posts = await getPosts();
 	
 	const initialPayload = (await request.json()) as Partial<UpsertPostPayload>;

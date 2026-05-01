@@ -184,6 +184,10 @@ export default function Editor({ initialPost = null }: EditorProps) {
 			console.log(response);
 
 			if (!response.ok) {
+				if(response.status == 401)
+				{
+					router.push('/');
+				}
 				setSaveError('Unable to save post. Please try again.');
 				return;
 			}
