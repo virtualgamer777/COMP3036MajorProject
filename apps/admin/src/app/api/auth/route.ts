@@ -38,3 +38,9 @@ const refreshToken = jwtSign({ type: "refresh", sid: crypto.randomUUID() },env.J
   return NextResponse.redirect(new URL("/", req.url));
 }
 
+export async function DELETE(req: Request) {
+  const cookieStore = await cookies();
+  cookieStore.delete("auth_token");
+  return NextResponse.redirect(new URL("/", req.url));
+
+}

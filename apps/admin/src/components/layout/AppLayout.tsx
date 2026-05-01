@@ -6,7 +6,7 @@ export function AppLayout({
   children,
 }: PropsWithChildren<{ query?: string }>) {
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "DELETE" });
+    await fetch("/api/auth", { method: "DELETE" });
     window.location.href = "/";
   }
 
