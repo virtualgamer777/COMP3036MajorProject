@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "esModuleInterop": true,

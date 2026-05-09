@@ -1,30 +1,26 @@
-import { PrismaClient } from "@prisma/client";
-import { env } from "@repo/env/web";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { env } from '@repo/env/web';
+import * as schema from './schema.js';
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  var db: ReturnType<typeof drizzle> | undefined;
 }
 
-export const createClient = () => {
-  if (global.prisma) {
-    return global.prisma;
-  }
-
-  const URL = env.DATABASE_URL;
-
-  const prisma = new PrismaClient({
-    datasourceUrl: URL,
-  });
-
-  console.log("Connected to database");
-  console.log(URL);
-
-  global.prisma = prisma;
-  return prisma;
-};
+const pool = new Pool({
+  connectionString: env.DATABASE_URL,
+});
 
 export const client = {
   get db() {
-    return createClient();
+    if (globalThis.db) {
+      return globalThis.db;
+    }
+
+    const db = drizzle({ client: pool, schema });
+    
+    console.log('Connected to database');
+    globalThis.db = db;
+    return db;
   },
 };

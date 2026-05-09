@@ -1,27 +1,30 @@
 import { client } from "./client.js";
-import type { Post as DBPost}  from "@prisma/client";
+import { posts as postsTable, likes as likesTable } from "./schema.js";
+import { eq, and, count } from "drizzle-orm";
 
 //returns all like objects
 export async function getLikes(post: Post) {
-  const rows = await client.db.like.findMany({
-    where: {
-      postId: post.id,
-    },
-  });
-  const likes: Likes[] = rows.map((row: any) => ({
+  const rows = await client.db
+    .select()
+    .from(likesTable)
+    .where(eq(likesTable.postId, post.id));
+
+  const likes: Likes[] = rows.map((row) => ({
     postID: row.postId,
-    userIP: row.userIP
+    userIP: row.userIP,
   }));
   return likes;
 }
 
 export async function dislike(userIP: string, postID: number) {
-  await client.db.like.deleteMany({
-    where: {
-      postId: postID,
-      userIP,
-    },
-  });
+  await client.db
+    .delete(likesTable)
+    .where(
+      and(
+        eq(likesTable.postId, postID),
+        eq(likesTable.userIP, userIP)
+      )
+    );
 
   const post = (await getPosts()).find((post) => post.id === postID);
   if (post && post.likes > 0) {
@@ -30,13 +33,15 @@ export async function dislike(userIP: string, postID: number) {
 }
 
 export async function addLike(userIP: string, postID: number) {
-  await client.db.like.create({
-    data: {
-      postId: postID,
-      userIP,
-    },
+  await client.db.insert(likesTable).values({
+    postId: postID,
+    userIP,
   });
-  (await getPosts()).find((post) => post.id == postID)!.likes+=1;
+
+  const post = (await getPosts()).find((post) => post.id === postID);
+  if (post) {
+    post.likes += 1;
+  }
 }
 
 export type Likes = {
@@ -160,15 +165,26 @@ export const initialPosts: Post[] = [
 const clonePosts = () => initialPosts.map((p) => ({ ...p, date: new Date(p.date) }));
 
 export async function retrieveAllPosts() {
-  const rows = await client.db.post.findMany({
-    orderBy: { id: "asc" },
-    include: {
-      _count: {
-        select: { Likes: true },
-      },
-    },
-  });
-  //'console.log(rows);
+  const rows = await client.db
+    .select({
+      id: postsTable.id,
+      urlId: postsTable.urlId,
+      title: postsTable.title,
+      content: postsTable.content,
+      description: postsTable.description,
+      imageUrl: postsTable.imageUrl,
+      date: postsTable.date,
+      category: postsTable.category,
+      views: postsTable.views,
+      tags: postsTable.tags,
+      active: postsTable.active,
+      likesCount: count(likesTable.id),
+    })
+    .from(postsTable)
+    .leftJoin(likesTable, eq(postsTable.id, likesTable.postId))
+    .groupBy(postsTable.id)
+    .orderBy(postsTable.id);
+
   const tempPosts: Post[] = rows.map((row: any) => ({
     id: row.id,
     urlId: row.urlId,
@@ -179,7 +195,7 @@ export async function retrieveAllPosts() {
     date: row.date,
     category: row.category,
     views: row.views,
-    likes: row._count.Likes,
+    likes: Number(row.likesCount),
     tags: row.tags,
     active: row.active,
   }));
@@ -206,23 +222,21 @@ export async function getPosts(): Promise<Post[]> {
 
 export async function appendPost(post: Post) {
   await reset();
-  await client.db.post.create({
-    data: {
-      title: post.title,
-      content: post.content,
-      category: post.category,
-      description: post.description,
-      imageUrl: post.imageUrl,
-      tags: post.tags
-        .split(",")
-        .map((p) => p.trim())
-        .join(","),
-      urlId: post.urlId,
-      active: post.active,
-      date: post.date,
-      id: post.id,
-      views: post.views,
-    },
+  await client.db.insert(postsTable).values({
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    category: post.category,
+    description: post.description,
+    imageUrl: post.imageUrl,
+    tags: post.tags
+      .split(",")
+      .map((p) => p.trim())
+      .join(","),
+    urlId: post.urlId,
+    active: post.active,
+    date: post.date,
+    views: post.views,
   });
   posts.push(post);
 }
@@ -230,24 +244,12 @@ export async function appendPost(post: Post) {
 export async function upsertPost(post: Post) {
   await reset();
   const existing = posts.find(
-    (current) => current.id === post.id || current.urlId === post.urlId,
+    (current) => current.id === post.id || current.urlId === post.urlId
   );
 
-  await client.db.post.upsert({
-    where: { urlId: post.urlId },
-    update: {
-      title: post.title,
-      content: post.content,
-      description: post.description,
-      imageUrl: post.imageUrl,
-      category: post.category,
-      tags: post.tags,
-      date: post.date,
-      views: post.views,
-      active: post.active,
-    },
-    create: {
-      id: post.id,
+  await client.db
+    .insert(postsTable)
+    .values({
       urlId: post.urlId,
       title: post.title,
       content: post.content,
@@ -257,10 +259,22 @@ export async function upsertPost(post: Post) {
       tags: post.tags,
       date: post.date,
       views: post.views,
-      likes: post.likes,
       active: post.active,
-    },
-  });
+    })
+    .onConflictDoUpdate({
+      target: postsTable.urlId,
+      set: {
+        title: post.title,
+        content: post.content,
+        description: post.description,
+        imageUrl: post.imageUrl,
+        category: post.category,
+        tags: post.tags,
+        date: post.date,
+        views: post.views,
+        active: post.active,
+      },
+    });
 
   if (existing) {
     Object.assign(existing, post);

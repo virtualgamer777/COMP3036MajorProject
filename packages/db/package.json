@@ -3,16 +3,27 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
+  "//": {
+    "scripts": {
+      "db:generate": "prisma generate",
+      "db:migrate:deploy": "prisma migrate deploy",
+      "db:migrate:dev": "prisma migrate dev",
+      "db:push": "prisma db push",
+      "lint": "eslint . --max-warnings 0",
+      "prebuild": "pnpm db:generate",
+      "predev": "pnpm db:generate",
+      "postinstall": "pnpm db:generate",
+      "studio": "prisma studio",
+      "dev": "tsc --watch",
+      "build": "tsc"
+    }
+  },
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "db:push": "prisma db push",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
     "lint": "eslint . --max-warnings 0",
-    "prebuild": "pnpm db:generate",
-    "predev": "pnpm db:generate",
-    "postinstall": "pnpm db:generate",
-    "studio": "prisma studio",
     "dev": "tsc --watch",
     "build": "tsc"
   },
