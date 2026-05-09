@@ -1,6 +1,7 @@
+"use server"
+
 import { type Post } from "@repo/db/data";
 import { tags } from "../../functions/tags";
-import { LinkList } from "./LinkList";
 import { toUrlPath } from "@repo/utils/url";
 import { SummaryItem } from "./SummaryItem";
 

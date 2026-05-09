@@ -10,15 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model Post {
+//   id     Int      @id @default(autoincrement())
+//   urlId  String   @unique
+//   title  String
+//   tags   String
+//   date   DateTime @default(now())
+//   views  Int      @default(0)
+//   active Boolean  @default(true)
+//   Likes  Like[]
+//   // Incomplete
+// }
+
 model Post {
-  id     Int      @id @default(autoincrement())
-  urlId  String   @unique
-  title  String
-  date   DateTime @default(now())
-  views  Int      @default(0)
-  active Boolean  @default(true)
-  Likes  Like[]
-  // Incomplete
+  id          Int      @id @default(autoincrement())
+  urlId       String   @unique
+  title       String
+  content     String
+  description String
+  imageUrl    String
+  category    String
+  tags        String
+  date        DateTime @default(now())
+  views       Int      @default(0)
+  likes       Int      @default(0)
+  active      Boolean  @default(true)
+  Likes       Like[]
 }
 
 model Like {

@@ -19,7 +19,7 @@ export default async function Page({
 
   //get existing post
   const { id } = await params;
-  const post = getPosts().find((p) => p.urlId === id);
+  const post = (await getPosts()).find((p) => p.urlId === id);
 
   return (
     <main>

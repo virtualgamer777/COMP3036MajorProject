@@ -1,39 +1,28 @@
-// import { redirect } from "next/navigation";
-// import { useRouter } from "next/navigation";
-import Link from "next/link";
+"use client";
+
 import type { PropsWithChildren } from "react";
 
-
-//layout for home page
-export async function AppLayout({
+export function AppLayout({
   children,
-  query,
 }: PropsWithChildren<{ query?: string }>) {
-  
-	//const router = useRouter();
+  async function handleLogout() {
+    await fetch("/api/auth", { method: "DELETE" });
+    window.location.href = "/";
+  }
 
-	// async function handleLogout() {
-	// 	const res = await fetch("/api/auth", { method: "DELETE" });
-	// 	if (res.ok) {
-	// 		router.push("/");
-	// 		router.refresh();
-	// 	}
-  	// }
-	
-	return (
+  return (
     <div className="py-6 mr-36">
-      <form action="/api/auth/logout" method="post" className="absolute right-4 top-4 z-10">
+      <div className="absolute right-4 top-4 z-10">
         <button
-          type="submit"
+          type="button"
+          onClick={handleLogout}
           className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
         >
           Logout
         </button>
-      </form>
+      </div>
 
-	    <main>
-        {children}
-      </main>
+      <main>{children}</main>
     </div>
   );
 }

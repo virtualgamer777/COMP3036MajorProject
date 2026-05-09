@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
 
         <AdminDashboard
-          posts={getPosts()}
+          posts={await getPosts()}
           initialQuery={{
             q: params?.q ?? "",
             tag: params?.tag ?? "",

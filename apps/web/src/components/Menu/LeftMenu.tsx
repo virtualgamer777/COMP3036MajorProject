@@ -1,9 +1,13 @@
-import { posts } from "@repo/db/data";
+"use server"
+
+import { getPosts } from "@repo/db/data";
 import { CategoryList } from "./CategoryList";
 import { HistoryList } from "./HistoryList";
 import { TagList } from "./TagList";
 
-export function LeftMenu() {
+export async function LeftMenu() {
+  let posts = await getPosts();
+  
   return (
     // modify the div so its to the left with a gray seperator
     <div className="w-64 shrink-0 h-full border-r border-gray-200 dark:border-gray-700 px-4 py-4 overflow-y-auto">

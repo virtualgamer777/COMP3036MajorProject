@@ -1,6 +1,8 @@
+"use server"
+
 import { AppLayout } from "@/components/Layout/AppLayout";
 import { Main } from "@/components/Main";
-import { posts } from "@repo/db/data";
+import { getPosts } from "@repo/db/data";
 
 export default async function Page({
   params,
@@ -9,6 +11,7 @@ export default async function Page({
 }) {
 
   const {year, month} = await params;
+  let posts = await getPosts();
   
   return (
     <AppLayout>

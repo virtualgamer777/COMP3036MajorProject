@@ -1,3 +1,50 @@
+import { client } from "./client.js";
+import type { Post as DBPost}  from "@prisma/client";
+
+//returns all like objects
+export async function getLikes(post: Post) {
+  const rows = await client.db.like.findMany({
+    where: {
+      postId: post.id,
+    },
+  });
+  const likes: Likes[] = rows.map((row: any) => ({
+    postID: row.postId,
+    userIP: row.userIP
+  }));
+  return likes;
+}
+
+export async function dislike(userIP: string, postID: number) {
+  await client.db.like.deleteMany({
+    where: {
+      postId: postID,
+      userIP,
+    },
+  });
+
+  const post = (await getPosts()).find((post) => post.id === postID);
+  if (post && post.likes > 0) {
+    post.likes -= 1;
+  }
+}
+
+export async function addLike(userIP: string, postID: number) {
+  await client.db.like.create({
+    data: {
+      postId: postID,
+      userIP,
+    },
+  });
+  (await getPosts()).find((post) => post.id == postID)!.likes+=1;
+}
+
+export type Likes = {
+  postID: number
+  userIP: string
+}
+
+
 export type Post = {
   id: number;
   urlId: string;
@@ -112,25 +159,111 @@ export const initialPosts: Post[] = [
 
 const clonePosts = () => initialPosts.map((p) => ({ ...p, date: new Date(p.date) }));
 
-export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
+export async function retrieveAllPosts() {
+  const rows = await client.db.post.findMany({
+    orderBy: { id: "asc" },
+    include: {
+      _count: {
+        select: { Likes: true },
+      },
+    },
+  });
+  //'console.log(rows);
+  const tempPosts: Post[] = rows.map((row: any) => ({
+    id: row.id,
+    urlId: row.urlId,
+    title: row.title,
+    content: row.content,
+    description: row.description,
+    imageUrl: row.imageUrl,
+    date: row.date,
+    category: row.category,
+    views: row.views,
+    likes: row._count.Likes,
+    tags: row.tags,
+    active: row.active,
+  }));
 
-export function reset() {
+  return tempPosts;
+}
+
+// export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = clonePosts());
+//export const posts = globalThis.__postsStore ?? (globalThis.__postsStore = await retrieveAllPosts());
+
+export const posts: Post[] = globalThis.__postsStore ?? [];
+globalThis.__postsStore = posts;
+
+export async function reset() {
+  const currentPosts = await retrieveAllPosts();
   posts.length = 0;
-  posts.push(...clonePosts());
+  posts.push(...currentPosts);
 }
 
-export function getPosts(): Post[] {
-  return posts;
+export async function getPosts(): Promise<Post[]> {
+  await reset();
+  return  posts;
 }
 
-export function appendPost(post: Post) {
+export async function appendPost(post: Post) {
+  await reset();
+  await client.db.post.create({
+    data: {
+      title: post.title,
+      content: post.content,
+      category: post.category,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      tags: post.tags
+        .split(",")
+        .map((p) => p.trim())
+        .join(","),
+      urlId: post.urlId,
+      active: post.active,
+      date: post.date,
+      id: post.id,
+      views: post.views,
+    },
+  });
   posts.push(post);
 }
 
-export function upsertPost(post: Post) {
-  const index = posts.findIndex((existing) => existing.id === post.id || existing.urlId === post.urlId);
-  if (index >= 0) {
-    posts[index] = post;
+export async function upsertPost(post: Post) {
+  await reset();
+  const existing = posts.find(
+    (current) => current.id === post.id || current.urlId === post.urlId,
+  );
+
+  await client.db.post.upsert({
+    where: { urlId: post.urlId },
+    update: {
+      title: post.title,
+      content: post.content,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      category: post.category,
+      tags: post.tags,
+      date: post.date,
+      views: post.views,
+      active: post.active,
+    },
+    create: {
+      id: post.id,
+      urlId: post.urlId,
+      title: post.title,
+      content: post.content,
+      description: post.description,
+      imageUrl: post.imageUrl,
+      category: post.category,
+      tags: post.tags,
+      date: post.date,
+      views: post.views,
+      likes: post.likes,
+      active: post.active,
+    },
+  });
+
+  if (existing) {
+    Object.assign(existing, post);
     return;
   }
 
