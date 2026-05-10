@@ -9,6 +9,8 @@ public class Data
 		clothing = 1 << 1,
 		soviet = 1 << 2,
 		automotive = 1 << 3,
+		aeronautcs = 1 << 4,
+		military = 1 << 5,
 
 	}
 	public struct Listing
@@ -45,6 +47,11 @@ public class Data
 
 	public Listing[] GetListings()
 	{
-		return listings.ToArray();
+		return [.. listings];
+	}
+
+	public Listing[] GetListingsOfCategory(ListingCategory cat)
+	{
+		return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
 	}
 }
