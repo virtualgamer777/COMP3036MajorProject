@@ -2,12 +2,13 @@ namespace Database;
 
 public class Data
 {
+	[Flags]
 	public enum ListingCategory
 	{
-		electronics = 0,
-		clothing = 1 << 0,
-		soviet = 1 << 1,
-		automotive = 1 << 2,
+		electronics = 1 << 0,
+		clothing = 1 << 1,
+		soviet = 1 << 2,
+		automotive = 1 << 3,
 
 	}
 	public struct Listing

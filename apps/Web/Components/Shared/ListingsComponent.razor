@@ -10,8 +10,8 @@ else
             <article class="listing-card">
                 <h3>@listing.ItemName</h3>
                 <p>@listing.ItemDescription</p>
-                <p>Price: @listing.Price</p>
-                <p>Category: @listing.Category</p>
+                <p>Price: $@((listing.Price/100m).ToString("0.00"))</p>
+                <p>Category(s): @GetCategoryText(listing.Category) </p>
                 <img src="@listing.Image" alt="@listing.ItemName" style="max-width: 240px;" />
             </article>
         }
@@ -21,4 +21,14 @@ else
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
+    
+    //get the category's
+    private static string GetCategoryText(Database.Data.ListingCategory category)
+    {
+        IEnumerable<string>? categories = Enum.GetValues<Database.Data.ListingCategory>()
+            .Where(c => Convert.ToInt32(c) != 0 && category.HasFlag(c))
+            .Select(c => c.ToString());
+
+        return categories.Any() ? string.Join(", ", categories) : "Uncategorized";
+    }
 }
