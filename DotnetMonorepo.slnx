@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/apps/">
+    <Project Path="apps/Admin/Admin.csproj" />
+    <Project Path="apps/Web/Web.csproj" />
+  </Folder>
+</Solution>
