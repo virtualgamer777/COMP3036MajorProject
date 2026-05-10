@@ -1,7 +1,18 @@
 ﻿@page "/"
+@using Web.Components.Shared
+@inject Database.Data data
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Listings</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Listings</h1>
 
-Welcome to your new app.
+<ListingsComponent Listings="Listings" />
+
+@code {
+    private Database.Data.Listing[] Listings = Array.Empty<Database.Data.Listing>();
+
+    protected override void OnInitialized()
+    {
+        Listings = data.GetListings();
+    }
+}

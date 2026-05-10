@@ -1,0 +1,24 @@
+@if (Listings is null || !Listings.Any())
+{
+    <p>No listings found.</p>
+}
+else
+{
+    <div class="listings">
+        @foreach (var listing in Listings)
+        {
+            <article class="listing-card">
+                <h3>@listing.ItemName</h3>
+                <p>@listing.ItemDescription</p>
+                <p>Price: @listing.Price</p>
+                <p>Category: @listing.Category</p>
+                <img src="@listing.Image" alt="@listing.ItemName" style="max-width: 240px;" />
+            </article>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
+}
