@@ -2,6 +2,16 @@ namespace Database;
 
 public class Data
 {
+	public class User
+	{
+		public UInt64 ID;
+		public string Username;
+		public string Password;
+		public bool IsAdmin;
+		public List<UInt64> products; // changed from List[UInt64]
+
+	}
+
 	[Flags]
 	public enum ListingCategory
 	{
@@ -13,7 +23,7 @@ public class Data
 		military = 1 << 5,
 
 	}
-	public struct Listing
+	public class Listing
 	{
 		public UInt64 ID;
 		public String ItemName;
@@ -22,6 +32,18 @@ public class Data
 		public String Image;
 		public UInt32 Price;
 	}
+
+	private List<User> users = new List<User>
+	{
+		new()
+		{
+			ID=0,
+			Username = "bob",
+			Password = "todd",
+			IsAdmin = true,
+			products = new List<UInt64>()
+		}
+	};
 
 	private List<Listing> listings = new List<Listing>
 	{
@@ -44,6 +66,12 @@ public class Data
 			Price = 2100000
 		}
 	};
+
+	public Listing? GetListing(UInt64 ID)
+	{
+		Listing listing = listings.Find((n) => n.ID == ID);
+		return listing.ID == ID ? listing : null;
+	}
 
 	public Listing[] GetListings()
 	{

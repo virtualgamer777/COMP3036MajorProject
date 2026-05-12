@@ -1,0 +1,39 @@
+@page "/cart"
+@using Database
+@rendermode InteractiveServer
+@inject Database.Data data
+
+
+<h1 class="main-heading">Cart</h1>
+<div class="cart-content">
+@if(Listings.Count == 0)
+{
+	<div>You have nothing in your cart</div>
+}
+else
+{
+	@foreach(var listing in Listings)
+	{
+		<div>
+			@listing.ItemName, $@((listing.Price / 100m).ToString("0.00"))
+		</div>
+	}
+		<button class="purchase-button" @onclick="Purchase">Purchase</button>
+}
+</div>
+
+
+
+
+@code 
+{
+	private List<Database.Data.Listing> Listings = new List<Database.Data.Listing>();
+	protected override void OnInitialized()
+	{
+		Listings.Add(data.GetListing(1));
+	}
+	private void Purchase()
+	{
+		Console.WriteLine("Purchase successful");
+	}
+}
