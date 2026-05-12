@@ -8,11 +8,16 @@ else
         @foreach (var listing in Listings)
         {
             <article class="listing-card">
-                <h3>@listing.ItemName</h3>
-                <p>@listing.ItemDescription</p>
-                <p>Price: $@((listing.Price/100m).ToString("0.00"))</p>
-                <p>Category(s): @GetCategoryText(listing.Category) </p>
-                <img src="@listing.Image" alt="@listing.ItemName" style="max-width: 240px;" />
+                <div class="title">@listing.ItemName</div>
+                <div class="category">@GetCategoryText(listing.Category)</div>
+
+                <img class="thumb" src="@listing.Image" alt="@listing.ItemName" />
+
+                <div class="details">
+                    <div class="price">Price: $@((listing.Price / 100m).ToString("0.00"))</div>
+                    <div class="description">@listing.ItemDescription</div>
+                    <div class="quantity">Amount Available: @listing.Quantity</div>
+                </div>
             </article>
         }
     </div>
@@ -21,8 +26,8 @@ else
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
-    
-    //get the category's
+
+    //get all the category's a post has
     private static string GetCategoryText(Database.Data.ListingCategory category)
     {
         IEnumerable<string>? categories = Enum.GetValues<Database.Data.ListingCategory>()
