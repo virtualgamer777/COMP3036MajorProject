@@ -12,12 +12,15 @@ public class Data
 
 	}
 
+	[Flags]
 	public enum ListingCategory
 	{
-		electronics = 0,
-		clothing = 1 << 0,
-		soviet = 1 << 1,
-		automotive = 1 << 2,
+		electronics = 1 << 0,
+		clothing = 1 << 1,
+		soviet = 1 << 2,
+		automotive = 1 << 3,
+		aeronautcs = 1 << 4,
+		military = 1 << 5,
 
 	}
 	public class Listing
@@ -72,6 +75,11 @@ public class Data
 
 	public Listing[] GetListings()
 	{
-		return listings.ToArray();
+		return [.. listings];
+	}
+
+	public Listing[] GetListingsOfCategory(ListingCategory cat)
+	{
+		return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
 	}
 }

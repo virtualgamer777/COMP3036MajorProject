@@ -1,0 +1,26 @@
+@page "/category/{category}"
+@using Web.Components.Shared
+@inject Database.Data data
+
+<h1 class="major-heading">Category: @category</h1>
+
+<ListingsComponent Listings="Listings" />
+
+@code {
+    [Parameter]
+    public string? category { get; set; }
+
+	private Database.Data.Listing[] Listings = Array.Empty<Database.Data.Listing>();
+	protected override void OnInitialized()
+    {
+        //parse string to enum
+        if (Enum.TryParse<Database.Data.ListingCategory>(category, true, out var parsedCategory))
+        {
+            Listings = data.GetListingsOfCategory(parsedCategory);
+        }
+        else
+        {
+            Listings = Array.Empty<Database.Data.Listing>();
+        }
+    }
+}
