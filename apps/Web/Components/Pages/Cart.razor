@@ -30,7 +30,7 @@ else
 	private List<Database.Data.Listing> Listings = new List<Database.Data.Listing>();
 	protected override void OnInitialized()
 	{
-		Listings.Add(data.GetListing(1).Value);
+		Listings.Add(data.GetListing(1));
 	}
 	private void Purchase()
 	{

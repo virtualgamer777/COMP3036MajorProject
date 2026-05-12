@@ -2,7 +2,7 @@ namespace Database;
 
 public class Data
 {
-	public struct User
+	public class User
 	{
 		public UInt64 ID;
 		public string Username;
@@ -20,7 +20,7 @@ public class Data
 		automotive = 1 << 2,
 
 	}
-	public struct Listing
+	public class Listing
 	{
 		public UInt64 ID;
 		public String ItemName;
@@ -29,6 +29,18 @@ public class Data
 		public String Image;
 		public UInt32 Price;
 	}
+
+	private List<User> users = new List<User>
+	{
+		new()
+		{
+			ID=0,
+			Username = "bob",
+			Password = "todd",
+			IsAdmin = true,
+			products = new List<UInt64>()
+		}
+	};
 
 	private List<Listing> listings = new List<Listing>
 	{

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
+builder.Services.AddDbContext<Database.AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddSingleton<Database.Data>();
 
