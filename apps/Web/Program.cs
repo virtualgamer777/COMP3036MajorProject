@@ -8,6 +8,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<Database.Data>();
 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
