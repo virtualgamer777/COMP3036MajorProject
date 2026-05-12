@@ -69,6 +69,11 @@ public class Data
 		}
 	];
 
+	public User[] GetUsers()
+	{
+		return [.. users];
+	}
+
 	public Listing? GetListing(UInt64 ID)
 	{
 		Listing? listing = listings.Find((n) => n.ID == ID);

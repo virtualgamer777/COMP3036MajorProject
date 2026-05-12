@@ -1,8 +1,13 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<IPasswordHasher<Database.Data.User>, PasswordHasher<Database.Data.User>>();
+
+builder.Services.AddHttpContextAccessor();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -11,7 +16,7 @@ builder.Services.AddRazorComponents()
 //auth service
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
     {
-        options.Cookie.Name = "auth_token";
+        options.Cookie.Name = "auth_token_web";
         options.LoginPath = "/login";
         options.Cookie.MaxAge = TimeSpan.FromHours(4);
         options.AccessDeniedPath = "/login";
@@ -40,9 +45,19 @@ app.UseHttpsRedirection();
 
 app.UseAntiforgery();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+//short routes
+
+//logout route
+app.MapGet("/logout", async (HttpContext http) =>
+{
+    await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    return Results.Redirect("/");
+});
 
 app.Run();

@@ -1,4 +1,6 @@
 ﻿@inherits LayoutComponentBase
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div class="page">
     <div class="sidebar">
@@ -7,6 +9,15 @@
 
     <main>
         <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <span>Hello @context.User.FindFirst(ClaimTypes.Name)?.Value</span>
+                    <NavLink href="logout">Sign out</NavLink>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="login">Sign in</NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
             <NavLink href="cart">
                 <span>Cart</span>
             </NavLink>
