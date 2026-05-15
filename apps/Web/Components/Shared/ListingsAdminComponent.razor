@@ -25,16 +25,11 @@ else
                     <div class="description">@listing.ItemDescription</div>
                     <div class="quantity">Amount Available: @listing.Quantity</div>
 
-                    @if (!IsInCart(listing.ID))
-                    {
-                        <button class="btn btn-primary add-to-cart" @onclick="() => AddToCart(listing.ID)">
-                            Add to cart
-                        </button>
-                    }
-                    else
-                    {
-                        <span class="in-cart">Already in cart</span>
-                    }
+                    
+                    <button class="btn btn-primary add-to-cart" @onclick="() => EditListing(listing.ID)">
+                        Edit
+                    </button>
+                    
                 </div>
             </article>
         }
@@ -46,45 +41,22 @@ else
     public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
     private UInt64? currentUserId;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (UInt64.TryParse(userIdClaim, out var userId))
-            {
-                currentUserId = userId;
-            }
-        }
-    }
-
-
-    private async Task AddToCart(ulong listingId)
-    {
-        AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        System.Security.Claims.ClaimsPrincipal? user = authState.User;
-
-        if (user.Identity?.IsAuthenticated != true)
-        {
-            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
-            return;
-        }
-
-        var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (!ulong.TryParse(userIdClaim, out var userId))
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
-
-        if (DataService.AddToCart(userId, listingId))
-        {
-            currentUserId = userId;
-        }
-    }
+    //moved to ListingDashboard
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //    var user = authState.User;
+    //    if (user.Identity?.IsAuthenticated != true || !user.IsInRole("Admin"))
+    //    {
+    //        Navigation.NavigateTo("/", forceLoad: true);
+    //        return;
+    //    }
+    //    var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    //    if (UInt64.TryParse(userIdClaim, out var userId))
+    //    {
+    //        currentUserId = userId;
+    //    }
+    //}
 
     //get all the category's a post has
     private static string GetCategoryText(Database.Data.ListingCategory category)
@@ -95,8 +67,10 @@ else
 
         return categories.Any() ? string.Join(", ", categories) : "Uncategorized";
     }
-    private bool IsInCart(ulong listingId)
+
+    private void EditListing(UInt64 listingId)
     {
-        return currentUserId is not null && DataService.IsInCart(currentUserId.Value, listingId);
+        Navigation.NavigateTo($"/admin/edit/{listingId}");
     }
+    
 }
