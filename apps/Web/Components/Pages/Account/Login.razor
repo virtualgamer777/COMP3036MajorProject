@@ -70,11 +70,14 @@
 
         try
         {
+            //get credentials from form
             var enteredUser = credentials.Username?.Trim() ?? string.Empty;
             var enteredPass = credentials.Password ?? string.Empty;
 
+            //get isers
             var user = DataService.GetUsers()
                 .FirstOrDefault(u => string.Equals(u.Username?.Trim(), enteredUser, StringComparison.OrdinalIgnoreCase));
+            
             if (user is null)
             {
                 error = "Invalid username or password. ";
@@ -82,6 +85,7 @@
             }
 
             bool ok = false;
+            //password hash, currently not doing anything
             try
             {
                 //var verify = PasswordHasher.VerifyHashedPassword(user, user.Password, enteredPass);
@@ -108,19 +112,25 @@
                 return;
             }
 
+            //create user claims (Microsoft Auth)
             var claims = new List<System.Security.Claims.Claim>
             {
                 new(System.Security.Claims.ClaimTypes.NameIdentifier, user.ID.ToString()),
                 new(System.Security.Claims.ClaimTypes.Name, user.Username)
             };
-            if (user.IsAdmin) claims.Add(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin"));
+            //if (user.IsAdmin) claims.Add(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin"));
+            //add admin or user role to user
+            claims.Add(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, (user.IsAdmin ? "Admin" : "User")));
 
+            //combine claims into identity
             var identity = new System.Security.Claims.ClaimsIdentity(claims,
                 Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
 
+            //asign identity to user
             await http.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
                 new System.Security.Claims.ClaimsPrincipal(identity));
 
+            //go back to home page
             Navigation.NavigateTo("/");
         }
         catch (Exception ex)

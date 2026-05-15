@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+
 namespace Database;
 
 public class Data
@@ -8,7 +10,7 @@ public class Data
 		public required string Username;
 		public required string Password;
 		public required bool IsAdmin;
-		public required List<UInt64> products; // changed from List[UInt64]
+		public required Dictionary<UInt64, Listing> products; // changed from List[UInt64]
 
 	}
 
@@ -41,7 +43,7 @@ public class Data
 			Username = "bob",
 			Password = "todd",
 			IsAdmin = true,
-			products = []
+			products = new Dictionary<UInt64, Listing>()
 		}
 	];
 
@@ -53,7 +55,7 @@ public class Data
 			ItemName = "Soviet Vacuum Tube",
 			ItemDescription = "a soviet era vacuum tube from surplus.",
 			Category = ListingCategory.electronics,
-			Image = "https://cdn.discordapp.com/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0405f3&is=6a02b473&hm=af17f3571f4340d199b176bb76fcd71fbaa0bbbcd9978ec261e7a419824db1b6&",
+			Image = "https://cdn.discordapp.com/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0751b3&is=6a060033&hm=7c747eec6bee40a3c166e69e2581381fee31d19137811bcb7870851e96c8b2c7&",
 			Price = 200000,
 			Quantity = 4
 		},
@@ -88,5 +90,98 @@ public class Data
 	public Listing[] GetListingsOfCategory(ListingCategory cat)
 	{
 		return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
+	}
+	public bool AddToCart(UInt64 userId, UInt64 listingId)
+    {
+        var user = users.Find(u => u.ID == userId);
+        if (user is null)
+        {
+            return false;
+        }
+
+        var listing = GetListing(listingId);
+        if (listing is null)
+        {
+            return false;
+        }
+
+        user.products[listingId] = listing;
+        return true;
+    }
+	public Listing[] GetCartListings(UInt64 userId)
+    {
+        var user = users.Find(u => u.ID == userId);
+        if (user is null)
+        {
+            return [];
+        }
+
+        return [.. user.products.Values];
+    }
+	public bool IsInCart(UInt64 userId, UInt64 listingId)
+	{
+		var user = users.Find(u => u.ID == userId);
+		return user is not null && user.products.ContainsKey(listingId);
+	}
+
+	public bool Buy(UInt64[] products, UInt64 userID)
+	{
+		var user = users.Find(u => u.ID == userID);
+
+		if (user is null)
+		{
+			return false;
+		}
+
+
+		foreach (var productId in products)
+		{
+			var listing = GetListing(productId);
+			if (listing is null)
+			{
+				continue;
+			}
+
+			if (listing.Quantity > 0)
+			{
+				listing.Quantity--;
+			}
+
+			user.products.Remove(productId);
+
+
+			if (listing.Quantity == 0)
+			{
+				listings.RemoveAll(l => l.ID == productId);
+
+				foreach (var otherUser in users)
+				{
+					otherUser.products.Remove(productId);
+				}
+			}
+		}
+
+    return true;
+	}
+
+	public bool CreateUser(string username, string password)
+	{
+		if (users.Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)))
+		{
+			return false;
+		}
+
+		var nextId = users.Count == 0 ? 0UL : users.Max(u => u.ID) + 1;
+
+		users.Add(new User
+		{
+			ID = nextId,
+			Username = username,
+			Password = password,
+			IsAdmin = false,
+			products = new Dictionary<UInt64, Listing>()
+		});
+
+		return true;
 	}
 }

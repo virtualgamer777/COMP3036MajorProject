@@ -1,0 +1,47 @@
+/* full-page center */
+.login-page {
+  min-height: calc(100vh - 40px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(180deg, #f6f9ff 0%, #ffffff 100%);
+}
+
+/* card */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  border: none;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+/* subtle logo sizing */
+.login-card .logo {
+  display: flex;
+  justify-content: center;
+}
+.login-card .logo img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+/* footer subtle */
+.login-card .card-footer {
+  background: transparent;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+/* validation messages */
+.field-validation-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+
+/* responsive tweaks */
+@media (max-width: 576px) {
+  .login-card { max-width: 100%; border-radius: 8px; }
+}

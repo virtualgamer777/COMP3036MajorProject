@@ -1,7 +1,11 @@
 @page "/cart"
 @using Database
+@using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 @inject Database.Data data
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject Database.Data DataService
 
 
 <h1 class="major-heading">Cart</h1>
@@ -27,13 +31,35 @@ else
 
 @code 
 {
-	private List<Database.Data.Listing> Listings = new List<Database.Data.Listing>();
-	protected override void OnInitialized()
-	{
-		Listings.Add(data.GetListing(1));
-	}
+	private List<Database.Data.Listing> Listings = new List<Data.Listing>();
+	private UInt64 userID;
+	protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        System.Security.Claims.ClaimsPrincipal? user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/cart")}", forceLoad: true);
+            return;
+        }
+
+        var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!ulong.TryParse(userIdClaim, out var userId))
+        {
+			userID = userId;
+            Navigation.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        Listings = data.GetCartListings(userId).ToList();
+    }
+
 	private void Purchase()
 	{
-		Console.WriteLine("Purchase successful");
+		var productIds = Listings.Select(listing => listing.ID).ToArray();
+		DataService.Buy(productIds, userID);
+		Listings = data.GetCartListings(userID).ToList();
+
 	}
 }
