@@ -1,0 +1,29 @@
+@page "/admin/edit/{id}"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+@using Web.Components.Shared
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+
+<ListingModifier ListingId="@parsedId" OnSuccess="@((UInt64? id) => HandleSuccess(id))" />
+
+@code {
+    [Parameter]
+    public string id { get; set; } = string.Empty;
+
+    private UInt64? parsedId;
+
+    protected override void OnInitialized()
+    {
+        if (UInt64.TryParse(id, out var listingId))
+        {
+            parsedId = listingId;
+        }
+    }
+
+    private async Task HandleSuccess(UInt64? newListingId)
+    {
+        Navigation.NavigateTo("/admin/listingdashboard");
+    }
+}
