@@ -25,6 +25,19 @@
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
         </div>
+        @*Category Pages*@
+        <h4 class="px-3"> Categories </h4>
+        @foreach (var category in Enum.GetValues<Database.Data.ListingCategory>()
+            .Where(c => !string.Equals(c.ToString(), "none", StringComparison.OrdinalIgnoreCase)))
+        {
+            var categoryName = category.ToString().ToLowerInvariant();
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="@($"category/{categoryName}")">
+                    <span class="bi bi-tag-fill-nav-menu" aria-hidden="true"></span> @category
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 

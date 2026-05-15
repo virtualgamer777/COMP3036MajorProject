@@ -2,6 +2,11 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
+.major-heading {
+    text-align: center;
+    font-weight: bold;
+}
+
 a, .btn-link {
     color: #006bb7;
 }

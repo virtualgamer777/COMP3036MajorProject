@@ -1,0 +1,151 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@inject Database.Data DataService
+@inject Microsoft.AspNetCore.Identity.IPasswordHasher<Database.Data.User> PasswordHasher
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Authentication
+
+<div class="login-page">
+    <div class="login-card card shadow-sm">
+        <div class="card-body">
+            <div class="logo mb-3">
+                <img src="favicon.png" alt="Logo" />
+            </div>
+
+            <h4 class="card-title mb-3">Sign in</h4>
+
+            <EditForm Model="credentials" FormName="loginForm" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <InputText class="form-control" @bind-Value="credentials.Username" autofocus />
+                    <ValidationMessage For="@(() => credentials.Username)" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <InputText class="form-control" @bind-Value="credentials.Password" type="password" />
+                    <ValidationMessage For="@(() => credentials.Password)" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(error))
+                {
+                    <div class="alert alert-danger" role="alert">@error</div>
+                }
+
+                <button class="btn btn-primary w-100" type="submit" disabled="@isBusy" aria-busy="@isBusy">
+                    @if (isBusy)
+                    {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ms-2">Signing in&hellip;</span>
+                    }
+                    else
+                    {
+                        <span>Sign in</span>
+                    }
+                </button>
+            </EditForm>
+
+            <div class="mt-3 text-center">
+                <a href="/register" class="text-muted small">Create an account</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    
+	//this code is run when the button is pressed, due to login it is run as a post request to login
+	[SupplyParameterFromForm]
+	public Credentials credentials { get; set; } = new();
+    private bool isBusy;
+    private string? error;
+
+    private async Task HandleLogin()
+    {
+        error = null;
+        isBusy = true;
+
+        try
+        {
+            //get credentials from form
+            var enteredUser = credentials.Username?.Trim() ?? string.Empty;
+            var enteredPass = credentials.Password ?? string.Empty;
+
+            //get isers
+            var user = DataService.GetUsers()
+                .FirstOrDefault(u => string.Equals(u.Username?.Trim(), enteredUser, StringComparison.OrdinalIgnoreCase));
+            
+            if (user is null)
+            {
+                error = "Invalid username or password. ";
+                return;
+            }
+
+            bool ok = false;
+            //password hash, currently not doing anything
+            try
+            {
+                //var verify = PasswordHasher.VerifyHashedPassword(user, user.Password, enteredPass);
+                //ok = verify == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success;
+            }
+            catch
+            {
+                
+				
+            }
+			ok = !string.IsNullOrEmpty(user.Password) && user.Password == enteredPass;
+
+            if (!ok)
+            {
+				
+                error = "Invalid username or password. ";
+                return;
+            }
+
+            var http = HttpContextAccessor.HttpContext;
+            if (http is null)
+            {
+                error = "Server HttpContext not available from this component instance. Use the API login fallback.";
+                return;
+            }
+
+            //create user claims (Microsoft Auth)
+            var claims = new List<System.Security.Claims.Claim>
+            {
+                new(System.Security.Claims.ClaimTypes.NameIdentifier, user.ID.ToString()),
+                new(System.Security.Claims.ClaimTypes.Name, user.Username)
+            };
+            //if (user.IsAdmin) claims.Add(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "Admin"));
+            //add admin or user role to user
+            claims.Add(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, (user.IsAdmin ? "Admin" : "User")));
+
+            //combine claims into identity
+            var identity = new System.Security.Claims.ClaimsIdentity(claims,
+                Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme);
+
+            //asign identity to user
+            await http.SignInAsync(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme,
+                new System.Security.Claims.ClaimsPrincipal(identity));
+
+            //go back to home page
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            error = "Login failed: " + ex.Message;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    public class Credentials
+    {
+        [Required] public string Username { get; set; } = string.Empty;
+        [Required] public string Password { get; set; } = string.Empty;
+    }
+}

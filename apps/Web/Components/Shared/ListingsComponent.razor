@@ -1,3 +1,10 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager Navigation
+@inject Database.Data DataService
+
+
 @if (Listings is null || !Listings.Any())
 {
     <p>No listings found.</p>
@@ -8,11 +15,27 @@ else
         @foreach (var listing in Listings)
         {
             <article class="listing-card">
-                <h3>@listing.ItemName</h3>
-                <p>@listing.ItemDescription</p>
-                <p>Price: @listing.Price</p>
-                <p>Category: @listing.Category</p>
-                <img src="@listing.Image" alt="@listing.ItemName" style="max-width: 240px;" />
+                <div class="title">@listing.ItemName</div>
+                <div class="category">@GetCategoryText(listing.Category)</div>
+
+                <img class="thumb" src="@listing.Image" alt="@listing.ItemName" />
+
+                <div class="details">
+                    <div class="price">Price: $@((listing.Price / 100m).ToString("0.00"))</div>
+                    <div class="description">@listing.ItemDescription</div>
+                    <div class="quantity">Amount Available: @listing.Quantity</div>
+
+                    @if (!IsInCart(listing.ID))
+                    {
+                        <button class="btn btn-primary add-to-cart" @onclick="() => AddToCart(listing.ID)">
+                            Add to cart
+                        </button>
+                    }
+                    else
+                    {
+                        <span class="in-cart">Already in cart</span>
+                    }
+                </div>
             </article>
         }
     </div>
@@ -21,4 +44,59 @@ else
 @code {
     [Parameter, EditorRequired]
     public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
+    private UInt64? currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (UInt64.TryParse(userIdClaim, out var userId))
+            {
+                currentUserId = userId;
+            }
+        }
+    }
+
+
+    private async Task AddToCart(ulong listingId)
+    {
+        AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        System.Security.Claims.ClaimsPrincipal? user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
+            return;
+        }
+
+        var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (!ulong.TryParse(userIdClaim, out var userId))
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        if (DataService.AddToCart(userId, listingId))
+        {
+            currentUserId = userId;
+        }
+    }
+
+    //get all the category's a post has
+    private static string GetCategoryText(Database.Data.ListingCategory category)
+    {
+        IEnumerable<string>? categories = Enum.GetValues<Database.Data.ListingCategory>()
+            .Where(c => Convert.ToInt32(c) != 0 && category.HasFlag(c))
+            .Select(c => c.ToString());
+
+        return categories.Any() ? string.Join(", ", categories) : "Uncategorized";
+    }
+    private bool IsInCart(ulong listingId)
+    {
+        return currentUserId is not null && DataService.IsInCart(currentUserId.Value, listingId);
+    }
 }
