@@ -1,11 +1,12 @@
 @page "/admin/listingdashboard"
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @using Web.Components.Shared
 @rendermode InteractiveServer
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
-
 @inject Database.Data data
+@attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Listing Dashboard</PageTitle>
 
@@ -16,9 +17,10 @@
 }
 else
 {
-	<h1 class="major-heading">Listings</h1>
-
+	<h1 class="major-heading">Listings Dashboard</h1>
 	<div class="mb-3">
+		<button class="btn btn-success mb-2" @onclick="CreateListing">Create Listing</button>
+
 		<input class="form-control" placeholder="Search listings..." @bind="searchTerm" @bind:event="oninput" />
 	</div>
 
@@ -32,11 +34,11 @@ else
 	private bool isLoading = true;
 
 
-	private UInt64? currentUserId;
+	//private UInt64? currentUserId;
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        @* var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         if (user.Identity?.IsAuthenticated != true || !user.IsInRole("Admin"))
@@ -44,12 +46,12 @@ else
             Navigation.NavigateTo("/", forceLoad: true);
             return;
         }
-
+		
         var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (UInt64.TryParse(userIdClaim, out var userId))
         {
             currentUserId = userId;
-        }
+        } *@
 		Listings = data.GetListings();
 		isLoading = false;
 
@@ -62,4 +64,9 @@ else
                 (l.ItemName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
                 || (l.ItemDescription?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
             );
+	
+	private void CreateListing()
+    {
+        Navigation.NavigateTo("/admin/create-listing");
+    }
 }
