@@ -7,13 +7,26 @@
 
 <h1 class="major-heading">Listings</h1>
 
-<ListingsComponent Listings="Listings" />
+<div class="mb-3">
+    <input class="form-control" placeholder="Search listings..." @bind="searchTerm" @bind:event="oninput" />
+</div>
+
+<ListingsComponent Listings="FilteredListings" />
 
 @code {
     private Database.Data.Listing[] Listings = Array.Empty<Database.Data.Listing>();
+    private string searchTerm = string.Empty;
+
 
     protected override void OnInitialized()
     {
         Listings = data.GetListings();
     }
+    private IEnumerable<Database.Data.Listing> FilteredListings =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? Listings
+            : Listings.Where(l =>
+                (l.ItemName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
+                || (l.ItemDescription?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
+            );
 }
