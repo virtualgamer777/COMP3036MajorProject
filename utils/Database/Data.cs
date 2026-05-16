@@ -184,4 +184,46 @@ public class Data
 
 		return true;
 	}
+
+	public UInt64 CreateListing(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	{
+		if (string.IsNullOrWhiteSpace(itemName))
+		{
+			return 0;
+		}
+
+		var nextId = listings.Count == 0 ? 0UL : listings.Max(l => l.ID) + 1;
+
+		listings.Add(new Listing
+		{
+			ID = nextId,
+			ItemName = itemName,
+			ItemDescription = itemDescription,
+			Category = category,
+			Image = image,
+			Price = price,
+			Quantity = quantity
+		});
+
+		return nextId;
+	}
+
+	public bool UpdateListing(UInt64 listingId, string itemName, string itemDescription, 
+		ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	{
+		var listing = GetListing(listingId);
+		if (listing is null)
+		{
+			return false;
+		}
+
+		listing.ItemName = itemName;
+		listing.ItemDescription = itemDescription;
+		listing.Category = category;
+		listing.Image = image;
+		listing.Price = price;
+		listing.Quantity = quantity;
+
+		return true;
+	}
 }
