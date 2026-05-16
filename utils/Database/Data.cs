@@ -4,6 +4,15 @@ namespace Database;
 
 public class Data
 {
+
+	public class UserPurchase
+	{
+		public required UInt64 PurchaseID;
+		public required UInt64 UserID;
+		public required UInt64 ProductID;
+		public required DateTime Date;
+	}
+
 	public class User
 	{
 		public required UInt64 ID;
@@ -70,6 +79,8 @@ public class Data
 			Quantity = 2
 		}
 	];
+
+	private List<UserPurchase> purchases = [];
 
 	public User[] GetUsers()
 	{
@@ -152,7 +163,7 @@ public class Data
 
 			if (listing.Quantity == 0)
 			{
-				listings.RemoveAll(l => l.ID == productId);
+				//listings.RemoveAll(l => l.ID == productId);
 
 				foreach (var otherUser in users)
 				{
@@ -226,4 +237,6 @@ public class Data
 
 		return true;
 	}
+
+
 }

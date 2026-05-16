@@ -23,10 +23,11 @@
         Listings = data.GetListings();
     }
     private IEnumerable<Database.Data.Listing> FilteredListings =>
-        string.IsNullOrWhiteSpace(searchTerm)
-            ? Listings
-            : Listings.Where(l =>
-                (l.ItemName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
-                || (l.ItemDescription?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
+        Listings
+            .Where(l => l.Quantity > 0)
+            .Where(l =>
+                string.IsNullOrWhiteSpace(searchTerm)
+                    || (l.ItemName?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
+                    || (l.ItemDescription?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) == true)
             );
 }
