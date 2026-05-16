@@ -57,20 +57,21 @@ else
 
     protected override void OnInitialized()
     {
-        var users = data.GetUsers();
-        var purchases = data.getPurchases();
-        var listingsById = data.GetListings().ToDictionary(listing => listing.ID);
-
+        Database.Data.User[]? users = data.GetUsers();
+        Database.Data.UserPurchase[]? purchases = data.getPurchases();
+        Dictionary<ulong, Database.Data.Listing>? listingsById = data.GetListings().ToDictionary(listing => listing.ID);
+        
+        //group purchases by user
         userPurchaseGroups = users
             .Select(user => new UserPurchaseGroup(
                 user,
                 purchases
-                    .Where(purchase => purchase.UserID == user.ID)
-                    .OrderByDescending(purchase => purchase.Date)
+                    .Where(purchase => purchase.UserID == user.ID)                      //match userid
+                    .OrderByDescending(purchase => purchase.Date)                       //order by date
                     .Select(purchase => new PurchaseRow(
                         purchase.PurchaseID,
                         purchase.ProductID,
-                        listingsById.TryGetValue(purchase.ProductID, out var listing)
+                        listingsById.TryGetValue(purchase.ProductID, out var listing)       //display basic listing information
                             ? listing.ItemName
                             : $"Listing #{purchase.ProductID}",
                         purchase.Date))

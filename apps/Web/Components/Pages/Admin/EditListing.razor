@@ -14,6 +14,7 @@
 
     private UInt64? parsedId;
 
+    //get id for post
     protected override void OnInitialized()
     {
         if (UInt64.TryParse(id, out var listingId))
@@ -22,6 +23,7 @@
         }
     }
 
+    //go back to dashboard after editing page
     private async Task HandleSuccess(UInt64? newListingId)
     {
         Navigation.NavigateTo("/admin/listingdashboard");

@@ -9,6 +9,7 @@
 <ListingModifier OnSuccess="@((UInt64? id) => HandleSuccess(id))" />
 @code {
 
+    //what to do after product is successfully added
     private async Task HandleSuccess(UInt64? newListingId)
     {
         if (newListingId.HasValue && newListingId.Value != 0)

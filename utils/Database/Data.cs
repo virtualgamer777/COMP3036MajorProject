@@ -26,6 +26,7 @@ public class Data
 	[Flags]
 	public enum ListingCategory
 	{
+		none = 0,
 		electronics = 1 << 0,
 		clothing = 1 << 1,
 		automotive = 1 << 2,

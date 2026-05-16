@@ -51,6 +51,7 @@ else
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
+        //may be redundant, may fix in final project
         if (user.Identity?.IsAuthenticated == true)
         {
             var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -67,6 +68,7 @@ else
         AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         System.Security.Claims.ClaimsPrincipal? user = authState.User;
 
+        //make user login if they aren't yet
         if (user.Identity?.IsAuthenticated != true)
         {
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString(Navigation.Uri)}");
@@ -79,9 +81,10 @@ else
             Navigation.NavigateTo("/login");
             return;
         }
-
+        //add to users cart
         if (DataService.AddToCart(userId, listingId))
         {
+            //might not be required
             currentUserId = userId;
         }
     }
@@ -95,6 +98,8 @@ else
 
         return categories.Any() ? string.Join(", ", categories) : "Uncategorized";
     }
+
+    //checks if already added item to cart
     private bool IsInCart(ulong listingId)
     {
         return currentUserId is not null && DataService.IsInCart(currentUserId.Value, listingId);

@@ -38,6 +38,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        //used to do auth here before attribute
         @* var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
@@ -57,6 +58,7 @@ else
 
     }
 
+    //searching like the home page
     private IEnumerable<Database.Data.Listing> FilteredListings =>
         string.IsNullOrWhiteSpace(searchTerm)
             ? Listings
