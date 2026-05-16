@@ -82,6 +82,23 @@ public class Data
 
 	private List<UserPurchase> purchases = [];
 
+	public UserPurchase[] getPurchases()
+	{
+		return [.. purchases];
+	}
+
+	private void AppendPurchase(UInt64 productID, UInt64 userID)
+	{
+		purchases.Add(new UserPurchase
+		{
+			PurchaseID = (UInt64)purchases.Count,
+			UserID = userID,
+			ProductID = productID,
+			Date = DateTime.Now
+		});
+
+	}
+
 	public User[] GetUsers()
 	{
 		return [.. users];
@@ -115,6 +132,10 @@ public class Data
         {
             return false;
         }
+		if(listing.Quantity <= 0)
+		{
+			return false;
+		}
 
         user.products[listingId] = listing;
         return true;
@@ -157,7 +178,7 @@ public class Data
 			{
 				listing.Quantity--;
 			}
-
+			AppendPurchase(productId, userID);
 			user.products.Remove(productId);
 
 

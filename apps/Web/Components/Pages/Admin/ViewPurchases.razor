@@ -1,0 +1,86 @@
+@page "/admin/userhistory"
+@using Microsoft.AspNetCore.Authorization
+@rendermode InteractiveServer
+@inject Database.Data data
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Purchase History</PageTitle>
+
+<h1 class="major-heading">Purchase History</h1>
+
+@if (userPurchaseGroups.Count == 0)
+{
+    <p>No purchases have been recorded yet.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var group in userPurchaseGroups)
+        {
+            <details class="list-group-item">
+                <summary class="d-flex justify-content-between align-items-center">
+                    <span>@group.User.Username</span>
+                    <span class="badge bg-secondary">@group.Purchases.Count purchase@(group.Purchases.Count == 1 ? "" : "s")</span>
+                </summary>
+
+                <div class="mt-3">
+                    @if (group.Purchases.Count == 0)
+                    {
+                        <p class="mb-0">No purchase history.</p>
+                    }
+                    else
+                    {
+                        <ul class="list-group">
+                            @foreach (var purchase in group.Purchases)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-bold">@purchase.ItemName</div>
+                                        <div>Product ID: @purchase.ProductID</div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div>@purchase.Date.ToString("g")</div>
+                                        <small class="text-muted">Purchase #@purchase.PurchaseID</small>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </details>
+        }
+    </div>
+}
+
+@code {
+    private List<UserPurchaseGroup> userPurchaseGroups = [];
+
+    protected override void OnInitialized()
+    {
+        var users = data.GetUsers();
+        var purchases = data.getPurchases();
+        var listingsById = data.GetListings().ToDictionary(listing => listing.ID);
+
+        userPurchaseGroups = users
+            .Select(user => new UserPurchaseGroup(
+                user,
+                purchases
+                    .Where(purchase => purchase.UserID == user.ID)
+                    .OrderByDescending(purchase => purchase.Date)
+                    .Select(purchase => new PurchaseRow(
+                        purchase.PurchaseID,
+                        purchase.ProductID,
+                        listingsById.TryGetValue(purchase.ProductID, out var listing)
+                            ? listing.ItemName
+                            : $"Listing #{purchase.ProductID}",
+                        purchase.Date))
+                    .ToList()))
+            .Where(group => group.Purchases.Count > 0)
+            .OrderByDescending(group => group.Purchases.Count)
+            .ThenBy(group => group.User.Username)
+            .ToList();
+    }
+
+    private sealed record UserPurchaseGroup(Database.Data.User User, List<PurchaseRow> Purchases);
+    private sealed record PurchaseRow(ulong PurchaseID, ulong ProductID, string ItemName, DateTime Date);
+}

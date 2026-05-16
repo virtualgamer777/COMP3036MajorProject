@@ -433,6 +433,7 @@ Components/
   CreateListing.razor
   EditListing.razor
   ListingDashboard.razor
+  ViewPurchases.razor
  Pages/
   Cart.razor
   Category.razor
@@ -463,6 +464,7 @@ Components/
   CreateListing.razor
   EditListing.razor
   ListingDashboard.razor
+  ViewPurchases.razor
  Pages/
   Cart.razor
   Category.razor
