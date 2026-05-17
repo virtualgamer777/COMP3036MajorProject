@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\utils\Database\Database.csproj" />
-    <ProjectReference Include="..\..\utils\Auth\Auth.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,8 +1,6 @@
 <Solution>
   <Folder Name="/apps/">
-    <Project Path="apps/Admin/Admin.csproj" />
     <Project Path="apps/Web/Web.csproj" />
     <Project Path="utils/Database/Database.csproj" />
-    <Project Path="utils/Auth/Auth.csproj" />
   </Folder>
 </Solution>
