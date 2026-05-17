@@ -4,6 +4,15 @@ namespace Database;
 
 public class Data
 {
+
+	public class UserPurchase
+	{
+		public required UInt64 PurchaseID;
+		public required UInt64 UserID;
+		public required UInt64 ProductID;
+		public required DateTime Date;
+	}
+
 	public class User
 	{
 		public required UInt64 ID;
@@ -17,6 +26,7 @@ public class Data
 	[Flags]
 	public enum ListingCategory
 	{
+		none = 0,
 		electronics = 1 << 0,
 		clothing = 1 << 1,
 		automotive = 1 << 2,
@@ -55,7 +65,7 @@ public class Data
 			ItemName = "Soviet Vacuum Tube",
 			ItemDescription = "a soviet era vacuum tube from surplus.",
 			Category = ListingCategory.electronics,
-			Image = "https://cdn.discordapp.com/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0751b3&is=6a060033&hm=7c747eec6bee40a3c166e69e2581381fee31d19137811bcb7870851e96c8b2c7&",
+			Image = "https://cdn.discordapp.com/attachments/856023618261352489/1503623437309186098/image.png?ex=6a09f4b3&is=6a08a333&hm=6dfb2318e1df603bb901db8ccc66b15c4f964f82bb2692502161e6b2e4966f58&",
 			Price = 200000,
 			Quantity = 4
 		},
@@ -70,6 +80,25 @@ public class Data
 			Quantity = 2
 		}
 	];
+
+	private List<UserPurchase> purchases = [];
+
+	public UserPurchase[] getPurchases()
+	{
+		return [.. purchases];
+	}
+
+	private void AppendPurchase(UInt64 productID, UInt64 userID)
+	{
+		purchases.Add(new UserPurchase
+		{
+			PurchaseID = (UInt64)purchases.Count,
+			UserID = userID,
+			ProductID = productID,
+			Date = DateTime.Now
+		});
+
+	}
 
 	public User[] GetUsers()
 	{
@@ -104,6 +133,10 @@ public class Data
         {
             return false;
         }
+		if(listing.Quantity <= 0)
+		{
+			return false;
+		}
 
         user.products[listingId] = listing;
         return true;
@@ -146,13 +179,13 @@ public class Data
 			{
 				listing.Quantity--;
 			}
-
+			AppendPurchase(productId, userID);
 			user.products.Remove(productId);
 
 
 			if (listing.Quantity == 0)
 			{
-				listings.RemoveAll(l => l.ID == productId);
+				//listings.RemoveAll(l => l.ID == productId);
 
 				foreach (var otherUser in users)
 				{
@@ -184,4 +217,48 @@ public class Data
 
 		return true;
 	}
+
+	public UInt64 CreateListing(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	{
+		if (string.IsNullOrWhiteSpace(itemName))
+		{
+			return 0;
+		}
+
+		var nextId = listings.Count == 0 ? 0UL : listings.Max(l => l.ID) + 1;
+
+		listings.Add(new Listing
+		{
+			ID = nextId,
+			ItemName = itemName,
+			ItemDescription = itemDescription,
+			Category = category,
+			Image = image,
+			Price = price,
+			Quantity = quantity
+		});
+
+		return nextId;
+	}
+
+	public bool UpdateListing(UInt64 listingId, string itemName, string itemDescription, 
+		ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	{
+		var listing = GetListing(listingId);
+		if (listing is null)
+		{
+			return false;
+		}
+
+		listing.ItemName = itemName;
+		listing.ItemDescription = itemDescription;
+		listing.Category = category;
+		listing.Image = image;
+		listing.Price = price;
+		listing.Quantity = quantity;
+
+		return true;
+	}
+
+
 }

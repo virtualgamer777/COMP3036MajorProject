@@ -1,0 +1,24 @@
+@page "/admin/createlisting"
+@using Microsoft.AspNetCore.Authorization
+@using Web.Components.Shared
+@rendermode InteractiveServer
+
+@inject NavigationManager Navigation
+@attribute [Authorize(Roles = "Admin")]
+
+<ListingModifier OnSuccess="@((UInt64? id) => HandleSuccess(id))" />
+@code {
+
+    //what to do after product is successfully added
+    private async Task HandleSuccess(UInt64? newListingId)
+    {
+        if (newListingId.HasValue && newListingId.Value != 0)
+        {
+            Navigation.NavigateTo($"/admin/edit/{newListingId.Value}");
+        }
+        else
+        {
+            Navigation.NavigateTo("/admin/listingdashboard");
+        }
+    }
+}

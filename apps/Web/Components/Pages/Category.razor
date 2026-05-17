@@ -17,7 +17,7 @@
         //parse string to enum
         if (Enum.TryParse<Database.Data.ListingCategory>(category, true, out var parsedCategory))
         {
-            Listings = data.GetListingsOfCategory(parsedCategory);
+            Listings = data.GetListingsOfCategory(parsedCategory).Where(l => (l.Quantity > 0)).ToArray();
         }
         else
         {

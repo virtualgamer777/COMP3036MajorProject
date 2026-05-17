@@ -45,12 +45,13 @@ else
         }
 
         var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (!ulong.TryParse(userIdClaim, out var userId))
-        {
-			userID = userId;
-            Navigation.NavigateTo("/login", forceLoad: true);
-            return;
-        }
+		if (!ulong.TryParse(userIdClaim, out var userId))
+		{
+			Navigation.NavigateTo("/login", forceLoad: true);
+			return;
+		}
+
+		userID = userId;
 
         Listings = data.GetCartListings(userId).ToList();
     }

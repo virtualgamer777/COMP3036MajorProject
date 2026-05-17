@@ -1,0 +1,94 @@
+body {
+	background-color: red;
+}
+
+.listings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Card grid:
+   Row 1: title (left column) + category (right column)
+   Row 2: image (left column) + details (right column)
+*/
+.listing-card {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-areas:
+    "title category"
+    "image details";
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  align-items: start;
+  background: #fff;
+}
+
+.listing-card .title {
+  grid-area: title;
+  font-size: 1.125rem;
+  font-weight: 600;
+  align-self: start;
+}
+
+.listing-card .category {
+  grid-area: category;
+  color: #666;
+  align-self: center;
+  justify-self: start;
+  padding-left: 8px;
+}
+
+.listing-card .thumb {
+  grid-area: image;
+  width: 100%;
+  max-width: 240px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.listing-card .details {
+  grid-area: details;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listing-card .price {
+  font-weight: 700;
+  color: #1a73e8;
+}
+
+.listing-card .description {
+  color: #333;
+}
+
+.listing-card .quantity {
+  margin-top: 8px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* Responsive: stack on narrow screens, keep title+category row */
+@media (max-width: 640px) {
+  .listing-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "category"
+      "image"
+      "details";
+  }
+
+  .listing-card .category {
+    justify-self: start;
+    padding-left: 0;
+  }
+
+  .listing-card .thumb {
+    max-width: 100%;
+  }
+}

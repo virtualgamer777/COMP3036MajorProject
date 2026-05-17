@@ -1,0 +1,176 @@
+@inject Database.Data DataService
+@inject NavigationManager Navigation
+
+<div class="listing-form">
+    <h2>@(IsEditMode ? "Edit Listing" : "Create Listing")</h2>
+
+    <EditForm Model="model" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label class="form-label">Item Name</label>
+            <InputText class="form-control" @bind-Value="model.ItemName" />
+            <ValidationMessage For="@(() => model.ItemName)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <InputTextArea class="form-control" @bind-Value="model.ItemDescription" rows="4" />
+            <ValidationMessage For="@(() => model.ItemDescription)" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Image URL</label>
+            <InputText class="form-control" @bind-Value="model.Image" />
+            <ValidationMessage For="@(() => model.Image)" />
+        </div>
+
+        <div class="mb-3">
+			<label class="form-label">Price (in cents)</label>
+			<input type="number" class="form-control" @bind="model.Price" />
+		</div>
+
+		<div class="mb-3">
+			<label class="form-label">Quantity</label>
+			<input type="number" class="form-control" @bind="model.Quantity" />
+		</div>
+
+        <div class="mb-3">
+			<label class="form-label">Categories</label>
+			<div>
+				@foreach (var cat in Enum.GetValues<Database.Data.ListingCategory>())
+				{
+					if (Convert.ToInt32(cat) != 0)
+					{
+						var category = cat;
+						<div class="form-check">
+							<input type="checkbox" class="form-check-input" id="@($"cat_{cat}")" 
+								@onchange="@((ChangeEventArgs e) => HandleCategoryChange(category, (bool)e.Value!))"
+								checked="@selectedCategories[cat]" />
+							<label class="form-check-label" for="@($"cat_{cat}")">@cat</label>
+						</div>
+					}
+				}
+			</div>
+		</div>
+
+        @if (!string.IsNullOrEmpty(error))
+        {
+            <div class="alert alert-danger">@error</div>
+        }
+
+        <button type="submit" class="btn btn-primary">@(IsEditMode ? "Update" : "Create")</button>
+        <button type="button" class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public UInt64? ListingId { get; set; }
+
+    [Parameter]
+    public EventCallback<UInt64?> OnSuccess { get; set; }
+
+    private ListingModel model = new();
+    private Dictionary<Database.Data.ListingCategory, bool> selectedCategories = new();
+    private string? error;
+    private bool IsEditMode => ListingId is not null;
+
+    protected override void OnInitialized()
+    {
+        InitializeCategories();
+
+        if (IsEditMode)
+        {
+            LoadListing();
+        }
+    }
+
+    private void InitializeCategories()
+    {
+        foreach (var cat in Enum.GetValues<Database.Data.ListingCategory>())
+        {
+            selectedCategories[cat] = false;
+        }
+    }
+
+    private void LoadListing()
+    {
+        var listing = DataService.GetListing(ListingId!.Value);
+        if (listing is null)
+        {
+            error = "Listing not found.";
+            return;
+        }
+
+        model.ItemName = listing.ItemName;
+        model.ItemDescription = listing.ItemDescription;
+        model.Image = listing.Image;
+        model.Price = listing.Price;
+        model.Quantity = listing.Quantity;
+
+        foreach (var cat in Enum.GetValues<Database.Data.ListingCategory>())
+        {
+            selectedCategories[cat] = listing.Category.HasFlag(cat);
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        error = null;
+
+        Database.Data.ListingCategory category = Database.Data.ListingCategory.none;
+        foreach (var (cat, isSelected) in selectedCategories)
+        {
+            if (isSelected)
+            {
+                category |= cat;
+            }
+        }
+
+        UInt64? createdId = null;
+        bool success = false;
+
+        if (IsEditMode)
+        {
+            success = DataService.UpdateListing(ListingId!.Value, model.ItemName, model.ItemDescription, 
+                category, model.Image, model.Price, model.Quantity);
+            createdId = ListingId;
+        }
+        else
+        {
+            var newId = DataService.CreateListing(model.ItemName, model.ItemDescription, 
+                category, model.Image, model.Price, model.Quantity);
+            success = newId != 0;
+            createdId = newId;
+        }
+
+        if (success)
+        {
+            await OnSuccess.InvokeAsync(createdId);
+        }
+        else
+        {
+            error = IsEditMode ? "Failed to update listing." : "Failed to create listing.";
+        }
+    }
+
+	private void HandleCategoryChange(Database.Data.ListingCategory category, bool isChecked)
+	{
+		selectedCategories[category] = isChecked;
+	}
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/admin/listingdashboard");
+    }
+
+    private class ListingModel
+    {
+        public string ItemName { get; set; } = string.Empty;
+        public string ItemDescription { get; set; } = string.Empty;
+        public string Image { get; set; } = string.Empty;
+        public UInt32 Price { get; set; }
+        public UInt32 Quantity { get; set; }
+    }
+}
