@@ -65,7 +65,7 @@ public class Data
 			ItemName = "Soviet Vacuum Tube",
 			ItemDescription = "a soviet era vacuum tube from surplus.",
 			Category = ListingCategory.electronics,
-			Image = "https://cdn.discordapp.com/attachments/856023618261352489/1503623437309186098/image.png?ex=6a09f4b3&is=6a08a333&hm=6dfb2318e1df603bb901db8ccc66b15c4f964f82bb2692502161e6b2e4966f58&",
+			Image = "https://media.discordapp.net/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0d4073&is=6a0beef3&hm=272974ca60f795f10d2848cab82466b3d53098d7462834330dbb3660b7eca7f6&=&format=webp&quality=lossless",
 			Price = 200000,
 			Quantity = 4
 		},
