@@ -1,32 +1,34 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.Playwright;
+using Microsoft.Playwright.NUnit;
 using NUnit.Framework;
 
+namespace PlaywrightTests;
+
+[Parallelizable(ParallelScope.Self)]
 [TestFixture]
-public class UiTests
+public class ExampleTest : PageTest
 {
-    IPlaywright? _pw;
-    IBrowser? _browser;
-
-    [OneTimeSetUp]
-    public async Task OneTimeSetUpAsync()
+    
+    [Test]
+    public async Task HasTitle()
     {
-        _pw = await Playwright.CreateAsync();
-        _browser = await _pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
-    }
+        await Page.GotoAsync("https://playwright.dev");
 
-    [OneTimeTearDown]
-    public async Task OneTimeTearDownAsync()
-    {
-        if (_browser != null) await _browser.CloseAsync();
-        _pw?.Dispose();
+        // Expect a title "to contain" a substring.
+        await Expect(Page).ToHaveTitleAsync(new Regex("Playwright"));
     }
 
     [Test]
-    public async Task HomePageLoads()
+    public async Task GetStartedLink()
     {
-        var page = await _browser!.NewPageAsync();
-        await page.GotoAsync("http://localhost:5134/"); // adjust URL/port as needed
-        Assert.That(await page.Locator("text=Home").CountAsync(), Is.GreaterThan(0));
-    }
+        await Page.GotoAsync("https://playwright.dev");
+
+        // Click the get started link.
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Get started" }).ClickAsync();
+
+        // Expects page to have a heading with the name of Installation.
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Installation" })).ToBeVisibleAsync();
+    } 
 }
