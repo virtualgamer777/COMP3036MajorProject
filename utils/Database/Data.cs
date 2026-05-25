@@ -7,20 +7,20 @@ public class Data
 
 	public class UserPurchase
 	{
-		public required UInt64 PurchaseID;
-		public required UInt64 UserID;
-		public required UInt64 ProductID;
-		public required DateTime Date;
+		public UInt64 PurchaseID { get; set; }
+		public UInt64 UserID { get; set; }
+		public UInt64 ProductID { get; set; }
+		public DateTime Date { get; set; }
 	}
 
 	public class User
 	{
-		public required UInt64 ID;
-		public required string Username;
-		public required string Password;
-		public required bool IsAdmin;
-		public required Dictionary<UInt64, Listing> products; // changed from List[UInt64]
+		public UInt64 ID { get; set; }
+		public string Username { get; set; } = "";
+		public string Password { get; set; } = "";
+		public bool IsAdmin { get; set; }
 
+		public Dictionary<UInt64, Listing> products { get; set; } = new();
 	}
 
 	[Flags]
@@ -35,15 +35,15 @@ public class Data
 
 	}
 	public class Listing
-	{
-		public required UInt64 ID;
-		public required String ItemName;
-		public required String ItemDescription;
-		public required ListingCategory Category;
-		public required String Image;
-		public required UInt32 Price;
-		public required UInt32 Quantity;
-	}
+{
+    public UInt64 ID { get; set; }
+    public string ItemName { get; set; } = "";
+    public string ItemDescription { get; set; } = "";
+    public ListingCategory Category { get; set; }
+    public string Image { get; set; } = "";
+    public uint Price { get; set; }
+    public uint Quantity { get; set; }
+}
 
 	private List<User> users =
 	[
