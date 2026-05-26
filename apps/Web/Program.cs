@@ -25,7 +25,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
 var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
-builder.Services.AddDbContext<Database.AppDbContext>(options =>
+// builder.Services.AddDbContext<Database.AppDbContext>(options =>
+//     options.UseNpgsql(connectionString));
+builder.Services.AddDbContextFactory<Database.AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 // builder.Services.AddSingleton<Database.Data>();

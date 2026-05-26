@@ -5,13 +5,15 @@ using Microsoft.EntityFrameworkCore;
 namespace Database;
 
 public class Data
-{
-	private readonly AppDbContext db;
+{	
+	//database constructor
+	private readonly IDbContextFactory<AppDbContext> dbFactory;
 
-    public Data(AppDbContext db)
-    {
-        this.db = db;
-    }
+	//constructor takes db Factory
+	public Data(IDbContextFactory<AppDbContext> dbFactory)
+	{
+		this.dbFactory = dbFactory;
+	}
 
 	public class CartItem
 	{
@@ -63,13 +65,15 @@ public class Data
 
 	public async Task Seed()
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
+
 		//reset db
 		await db.Database.EnsureDeletedAsync();
 		await db.Database.MigrateAsync();
 		// Seed users
 		db.Users.Add(new User
 		{
-			ID = 0,
+			ID = 1,
 			Username = "bob",
 			Password = "todd",
 			IsAdmin = true
@@ -79,7 +83,7 @@ public class Data
 		db.Listings.AddRange(
 			new Listing
 			{
-				ID = 0,
+				ID = 1,
 				ItemName = "Soviet Vacuum Tube",
 				ItemDescription = "a soviet era vacuum tube from surplus.",
 				Category = ListingCategory.electronics,
@@ -89,7 +93,7 @@ public class Data
 			},
 			new Listing
 			{
-				ID = 1,
+				ID = 2,
 				ItemName = "1990 Holden Commodore",
 				ItemDescription = "A 1990 Holden Commodore, low odometer, in need of slight fixes",
 				Category = ListingCategory.automotive,
@@ -147,6 +151,7 @@ public class Data
 	//get all purchases from database
 	public async Task<UserPurchase[]> GetPurchasesAsync()
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.UserPurchases.ToArrayAsync();
 	}
 
@@ -165,6 +170,7 @@ public class Data
 	//add a new purchase to the database
 	private async Task AppendPurchaseAsync(UInt64 productID, UInt64 userID)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		UInt64 nextId = (await db.UserPurchases.Select(p => (UInt64?)p.PurchaseID).MaxAsync() ?? 0UL) + 1UL;
 		db.UserPurchases.Add(new UserPurchase
 		{
@@ -184,6 +190,7 @@ public class Data
 	//get all users from database
 	public async Task<User[]> GetUsersAsync()
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.Users.ToArrayAsync();
 	}
 
@@ -196,6 +203,7 @@ public class Data
 	//get a specific listing from the database
 	public async Task<Listing?> GetListingAsync(ulong id)
     {
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
         return await db.Listings.SingleAsync(l => l.ID == id);
     }
 
@@ -207,6 +215,7 @@ public class Data
 	//get all listings from the database
 	public async Task<Listing[]> GetListingsAsync()
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.Listings.ToArrayAsync();
 	}
 	// public Listing[] GetListingsOfCategory(ListingCategory cat)
@@ -216,6 +225,7 @@ public class Data
 	//retrieve listing based on category
 	public async Task<Listing[]> GetListingsOfCategoryAsync(ListingCategory cat)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.Listings.Where(l => (l.Category & cat) != ListingCategory.none).ToArrayAsync();
 	}
 
@@ -244,6 +254,7 @@ public class Data
 	//add an item to a users cart
 	public async Task<bool> AddToCartAsync(UInt64 userId, UInt64 listingId)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		User? user = await db.Users.FindAsync(userId);
 		if(user is null)
 		{
@@ -289,6 +300,7 @@ public class Data
 	//get the cart of a single user
 	public async Task<Listing[]> GetCartListingsAsync(UInt64 userId)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.CartItems.Where(c => c.UserId == userId).Join(db.Listings, c=>c.ListingId, l => l.ID, (c, l) => l).ToArrayAsync();
 	}
 
@@ -300,6 +312,7 @@ public class Data
 
 	public async Task<bool> IsInCartAsync(UInt64 userId, UInt64 listingId)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		return await db.CartItems.Where(c => c.UserId == userId && c.ListingId == listingId).AnyAsync();
 	}
 
@@ -346,6 +359,7 @@ public class Data
 	//"buy" products from a users cart
 	public async Task<bool> BuyAsync(UInt64[] products, UInt64 userId)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		User? user = await db.Users.FindAsync(userId);
 		if (user is null)
 		{
@@ -401,6 +415,7 @@ public class Data
 	//register a new user in the database
 	public async Task<bool> CreateUserAsync(string username, string password)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		if(await db.Users.Where(u => u.Username == username).AnyAsync())
 		{
 			return false;
@@ -447,6 +462,7 @@ public class Data
 	//create a new listing and add it to the database
 	public async Task<UInt64> CreateListingAsync(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		if(string.IsNullOrWhiteSpace(itemName))
 		{
 			return 0;
@@ -491,6 +507,7 @@ public class Data
 	//update an existing listing in the database
 	public async Task<bool> UpdateListingAsync(UInt64 listingId, string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
 	{
+		await using AppDbContext db = await dbFactory.CreateDbContextAsync();
 		Listing? listing = await db.Listings.FindAsync(listingId);
 		if (listing is null) return false;
 
