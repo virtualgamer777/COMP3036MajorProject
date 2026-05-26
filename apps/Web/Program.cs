@@ -55,10 +55,17 @@ app.MapRazorComponents<App>()
 //short routes
 
 //logout route
-app.MapGet("/logout", async (HttpContext http) =>
+// app.MapGet("/logout", async (HttpContext http) =>
+// {
+//     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+//     return Results.Redirect("/");
+// });
+
+//logout api route
+app.MapDelete("/logout", async (HttpContext http) =>
 {
     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-    return Results.Redirect("/");
+    //return Results.Redirect("/");
 });
 
 app.Run();
