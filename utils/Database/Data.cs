@@ -50,53 +50,95 @@ public class Data
 
 	}
 	public class Listing
-{
-    public UInt64 ID { get; set; }
-    public string ItemName { get; set; } = "";
-    public string ItemDescription { get; set; } = "";
-    public ListingCategory Category { get; set; }
-    public string Image { get; set; } = "";
-    public uint Price { get; set; }
-    public uint Quantity { get; set; }
-}
+	{
+		public UInt64 ID { get; set; }
+		public string ItemName { get; set; } = "";
+		public string ItemDescription { get; set; } = "";
+		public ListingCategory Category { get; set; }
+		public string Image { get; set; } = "";
+		public uint Price { get; set; }
+		public uint Quantity { get; set; }
+		
+	}
 
-	private List<User> users =
-	[
-		new()
-		{
-			ID=0,
-			Username = "bob",
-			Password = "todd",
-			IsAdmin = true,
-			products = new Dictionary<UInt64, Listing>()
-		}
-	];
-
-	private List<Listing> listings =
-	[
-		new() 
+	public async Task Seed()
+	{
+		//reset db
+		await db.Database.EnsureDeletedAsync();
+		await db.Database.MigrateAsync();
+		// Seed users
+		db.Users.Add(new User
 		{
 			ID = 0,
-			ItemName = "Soviet Vacuum Tube",
-			ItemDescription = "a soviet era vacuum tube from surplus.",
-			Category = ListingCategory.electronics,
-			Image = "https://media.discordapp.net/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0d4073&is=6a0beef3&hm=272974ca60f795f10d2848cab82466b3d53098d7462834330dbb3660b7eca7f6&=&format=webp&quality=lossless",
-			Price = 200000,
-			Quantity = 4
-		},
-		new()
-		{
-			ID = 1,
-			ItemName = "1990 Holden Commodore",
-			ItemDescription = "A 1990 Holden Commodore, low odometer, in need of slight fixes",
-			Category = ListingCategory.automotive,
-			Image = "https://external-preview.redd.it/i-always-laugh-when-i-look-at-this-picture-what-in-the-v0-JZg3fULGc21qWhlfk3fbeL6xm6C9IhwPHSht-ul-TDI.jpeg?auto=webp&s=e3f4b1b42ccaf532512de24077c9caddb6b13a8f",
-			Price = 2100000,
-			Quantity = 2
-		}
-	];
+			Username = "bob",
+			Password = "todd",
+			IsAdmin = true
+		});
 
-	private List<UserPurchase> purchases = [];
+		// Seed listings
+		db.Listings.AddRange(
+			new Listing
+			{
+				ID = 0,
+				ItemName = "Soviet Vacuum Tube",
+				ItemDescription = "a soviet era vacuum tube from surplus.",
+				Category = ListingCategory.electronics,
+				Image = "https://media.discordapp.net/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0d4073&is=6a0beef3&hm=272974ca60f795f10d2848cab82466b3d53098d7462834330dbb3660b7eca7f6&=&format=webp&quality=lossless",
+				Price = 200000,
+				Quantity = 4
+			},
+			new Listing
+			{
+				ID = 1,
+				ItemName = "1990 Holden Commodore",
+				ItemDescription = "A 1990 Holden Commodore, low odometer, in need of slight fixes",
+				Category = ListingCategory.automotive,
+				Image = "https://external-preview.redd.it/i-always-laugh-when-i-look-at-this-picture-what-in-the-v0-JZg3fULGc21qWhlfk3fbeL6xm6C9IhwPHSht-ul-TDI.jpeg?auto=webp&s=e3f4b1b42ccaf532512de24077c9caddb6b13a8f",
+				Price = 2100000,
+				Quantity = 2
+			}
+		);
+
+		await db.SaveChangesAsync();
+	}
+
+	// private List<User> users =
+	// [
+	// 	new()
+	// 	{
+	// 		ID=0,
+	// 		Username = "bob",
+	// 		Password = "todd",
+	// 		IsAdmin = true,
+	// 		products = new Dictionary<UInt64, Listing>()
+	// 	}
+	// ];
+
+	// private List<Listing> listings =
+	// [
+	// 	new() 
+	// 	{
+	// 		ID = 0,
+	// 		ItemName = "Soviet Vacuum Tube",
+	// 		ItemDescription = "a soviet era vacuum tube from surplus.",
+	// 		Category = ListingCategory.electronics,
+	// 		Image = "https://media.discordapp.net/attachments/856023618261352489/1503623437309186098/image.png?ex=6a0d4073&is=6a0beef3&hm=272974ca60f795f10d2848cab82466b3d53098d7462834330dbb3660b7eca7f6&=&format=webp&quality=lossless",
+	// 		Price = 200000,
+	// 		Quantity = 4
+	// 	},
+	// 	new()
+	// 	{
+	// 		ID = 1,
+	// 		ItemName = "1990 Holden Commodore",
+	// 		ItemDescription = "A 1990 Holden Commodore, low odometer, in need of slight fixes",
+	// 		Category = ListingCategory.automotive,
+	// 		Image = "https://external-preview.redd.it/i-always-laugh-when-i-look-at-this-picture-what-in-the-v0-JZg3fULGc21qWhlfk3fbeL6xm6C9IhwPHSht-ul-TDI.jpeg?auto=webp&s=e3f4b1b42ccaf532512de24077c9caddb6b13a8f",
+	// 		Price = 2100000,
+	// 		Quantity = 2
+	// 	}
+	// ];
+
+	// private List<UserPurchase> purchases = [];
 
 	// public UserPurchase[] getPurchases()
 	// {

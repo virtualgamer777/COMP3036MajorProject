@@ -43,7 +43,7 @@
 
     private async Task SignOutAsync()
     {
-        await JS.InvokeVoidAsync("fetch", "/logout", new { method = "DELETE" });
+        await JS.InvokeVoidAsync("fetch", "/api/logout", new { method = "DELETE" });
         Navigation.NavigateTo("/");
     }
 }

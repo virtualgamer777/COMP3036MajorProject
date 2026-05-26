@@ -62,10 +62,21 @@ app.MapRazorComponents<App>()
 // });
 
 //logout api route
-app.MapDelete("/logout", async (HttpContext http) =>
+app.MapDelete("/api/logout", async (HttpContext http) =>
 {
     await http.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     //return Results.Redirect("/");
 });
+
+//seed api route
+if (app.Environment.IsDevelopment())
+{
+    app.MapPost("/api/seed", async (Database.Data data, HttpContext http) =>
+    {
+        // seed logic here
+        await data.Seed();
+        return Results.Ok();
+    });
+}
 
 app.Run();
