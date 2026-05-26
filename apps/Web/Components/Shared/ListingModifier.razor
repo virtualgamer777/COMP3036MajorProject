@@ -94,9 +94,9 @@
         }
     }
 
-    private void LoadListing()
+    private async Task LoadListing()
     {
-        var listing = DataService.GetListing(ListingId!.Value);
+        Database.Data.Listing? listing = await DataService.GetListingAsync(ListingId!.Value);
         if (listing is null)
         {
             error = "Listing not found.";
@@ -133,14 +133,12 @@
 
         if (IsEditMode)
         {
-            success = DataService.UpdateListing(ListingId!.Value, model.ItemName, model.ItemDescription, 
-                category, model.Image, model.Price, model.Quantity);
+            success = await DataService.UpdateListingAsync(ListingId!.Value, model.ItemName, model.ItemDescription, category, model.Image, model.Price, model.Quantity);
             createdId = ListingId;
         }
         else
         {
-            var newId = DataService.CreateListing(model.ItemName, model.ItemDescription, 
-                category, model.Image, model.Price, model.Quantity);
+            var newId = await DataService.CreateListingAsync(model.ItemName, model.ItemDescription, category, model.Image, model.Price, model.Quantity);
             success = newId != 0;
             createdId = newId;
         }

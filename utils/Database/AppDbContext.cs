@@ -9,6 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<Data.User> Users => Set<Data.User>();
     public DbSet<Data.Listing> Listings => Set<Data.Listing>();
     public DbSet<Data.UserPurchase> UserPurchases => Set<Data.UserPurchase>();
+    public DbSet<Data.CartItem> CartItems => Set<Data.CartItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,5 +34,18 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Data.User>()
             .Ignore(u => u.products);
+        
+        modelBuilder.Entity<Data.CartItem>()
+            .HasKey(c => new { c.UserId, c.ListingId });
+
+        modelBuilder.Entity<Data.CartItem>()
+            .HasOne<Data.User>()
+            .WithMany()
+            .HasForeignKey(c => c.UserId);
+
+        modelBuilder.Entity<Data.CartItem>()
+            .HasOne<Data.Listing>()
+            .WithMany()
+            .HasForeignKey(c => c.ListingId);
     }
 }

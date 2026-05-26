@@ -55,11 +55,11 @@ else
 @code {
     private List<UserPurchaseGroup> userPurchaseGroups = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Database.Data.User[]? users = data.GetUsers();
-        Database.Data.UserPurchase[]? purchases = data.getPurchases();
-        Dictionary<ulong, Database.Data.Listing>? listingsById = data.GetListings().ToDictionary(listing => listing.ID);
+        Database.Data.User[]? users = await data.GetUsersAsync();
+        Database.Data.UserPurchase[]? purchases = await data.GetPurchasesAsync();
+        Dictionary<ulong, Database.Data.Listing>? listingsById = (await data.GetListingsAsync()).ToDictionary(listing => listing.ID);
         
         //group purchases by user
         userPurchaseGroups = users

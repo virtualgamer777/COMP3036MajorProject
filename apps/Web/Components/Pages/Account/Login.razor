@@ -75,7 +75,7 @@
             var enteredPass = credentials.Password ?? string.Empty;
 
             //get isers
-            var user = DataService.GetUsers()
+            Database.Data.User? user = (await DataService.GetUsersAsync())
                 .FirstOrDefault(u => string.Equals(u.Username?.Trim(), enteredUser, StringComparison.OrdinalIgnoreCase));
             
             if (user is null)

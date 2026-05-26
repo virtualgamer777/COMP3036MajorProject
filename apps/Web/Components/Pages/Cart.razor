@@ -53,14 +53,14 @@ else
 
 		userID = userId;
 
-        Listings = data.GetCartListings(userId).ToList();
+        Listings = (await data.GetCartListingsAsync(userId)).ToList();
     }
 
-	private void Purchase()
+	private async Task Purchase()
 	{
-		var productIds = Listings.Select(listing => listing.ID).ToArray();
-		DataService.Buy(productIds, userID);
-		Listings = data.GetCartListings(userID).ToList();
+		UInt64[]? productIds = Listings.Select(listing => listing.ID).ToArray();
+		await DataService.BuyAsync(productIds, userID);
+		Listings = (await data.GetCartListingsAsync(userID)).ToList();
 
 	}
 }

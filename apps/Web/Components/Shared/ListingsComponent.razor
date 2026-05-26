@@ -46,6 +46,8 @@ else
     public IEnumerable<Database.Data.Listing> Listings { get; set; } = Array.Empty<Database.Data.Listing>();
     private UInt64? currentUserId;
 
+    private HashSet<UInt64> isInCart { get; set; } = new ();
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -58,8 +60,15 @@ else
             if (UInt64.TryParse(userIdClaim, out var userId))
             {
                 currentUserId = userId;
+                foreach(var cartItem in (await DataService.GetCartListingsAsync(userId)))
+                {
+                    isInCart.Add(cartItem.ID);
+                }
             }
+            
         }
+
+        
     }
 
 
@@ -82,9 +91,10 @@ else
             return;
         }
         //add to users cart
-        if (DataService.AddToCart(userId, listingId))
+        if (await DataService.AddToCartAsync(userId, listingId))
         {
             //might not be required
+            isInCart.Add(listingId);
             currentUserId = userId;
         }
     }
@@ -102,6 +112,6 @@ else
     //checks if already added item to cart
     private bool IsInCart(ulong listingId)
     {
-        return currentUserId is not null && DataService.IsInCart(currentUserId.Value, listingId);
+        return currentUserId is not null && isInCart.Contains(listingId);
     }
 }

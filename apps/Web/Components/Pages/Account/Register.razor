@@ -94,7 +94,7 @@
                 return;
             }
 
-            var existingUser = DataService.GetUsers()
+            Database.Data.User? existingUser = (await DataService.GetUsersAsync())
                 .FirstOrDefault(u => string.Equals(u.Username?.Trim(), enteredUser, StringComparison.OrdinalIgnoreCase));
 
             if (existingUser is not null)
@@ -103,7 +103,7 @@
                 return;
             }
 
-            var created = DataService.CreateUser(enteredUser, enteredPass);
+            bool created = await DataService.CreateUserAsync(enteredUser, enteredPass);
             if (!created)
             {
                 error = "Unable to create account.";

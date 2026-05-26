@@ -8,7 +8,7 @@
       "applicationUrl": "http://localhost:5134",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__PostgreSQL": "Host=db.feetloaf.net;Port=5432;Database=dev;Username=feetloaf;Password=feetloaf;Include Error Detail=true"
+        "ConnectionStrings__PostgreSQL": "Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true"
       }
     },
     "https": {
@@ -18,7 +18,7 @@
       "applicationUrl": "https://localhost:7243;http://localhost:5134",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionStrings__PostgreSQL": "Host=db.feetloaf.net;Port=5432;Database=dev;Username=feetloaf;Password=feetloaf;Include Error Detail=true"
+        "ConnectionStrings__PostgreSQL": "Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true"
       }
     }
   }

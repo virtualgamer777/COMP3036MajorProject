@@ -1,9 +1,24 @@
+using System.ComponentModel;
 using System.Net.Http.Headers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Database;
 
 public class Data
 {
+	private readonly AppDbContext db;
+
+    public Data(AppDbContext db)
+    {
+        this.db = db;
+    }
+
+	public class CartItem
+	{
+		public UInt64 UserId { get; set; }
+		public UInt64 ListingId { get; set; }
+
+	}
 
 	public class UserPurchase
 	{
@@ -19,7 +34,7 @@ public class Data
 		public string Username { get; set; } = "";
 		public string Password { get; set; } = "";
 		public bool IsAdmin { get; set; }
-
+		//depreceated
 		public Dictionary<UInt64, Listing> products { get; set; } = new();
 	}
 
@@ -83,94 +98,222 @@ public class Data
 
 	private List<UserPurchase> purchases = [];
 
-	public UserPurchase[] getPurchases()
+	// public UserPurchase[] getPurchases()
+	// {
+	// 	return [.. purchases];
+	// }
+	//get all purchases from database
+	public async Task<UserPurchase[]> GetPurchasesAsync()
 	{
-		return [.. purchases];
+		return await db.UserPurchases.ToArrayAsync();
 	}
 
-	private void AppendPurchase(UInt64 productID, UInt64 userID)
+	// private void AppendPurchase(UInt64 productID, UInt64 userID)
+	// {
+	// 	purchases.Add(new UserPurchase
+	// 	{
+	// 		PurchaseID = (UInt64)purchases.Count,
+	// 		UserID = userID,
+	// 		ProductID = productID,
+	// 		Date = DateTime.Now
+	// 	});
+
+	// }
+
+	//add a new purchase to the database
+	private async Task AppendPurchaseAsync(UInt64 productID, UInt64 userID)
 	{
-		purchases.Add(new UserPurchase
+		UInt64 nextId = (await db.UserPurchases.Select(p => (UInt64?)p.PurchaseID).MaxAsync() ?? 0UL) + 1UL;
+		db.UserPurchases.Add(new UserPurchase
 		{
-			PurchaseID = (UInt64)purchases.Count,
+			PurchaseID = nextId,
 			UserID = userID,
 			ProductID = productID,
 			Date = DateTime.Now
 		});
 
+		await db.SaveChangesAsync();
 	}
 
-	public User[] GetUsers()
+	// public User[] GetUsers()
+	// {
+	// 	return [.. users];
+	// }
+	//get all users from database
+	public async Task<User[]> GetUsersAsync()
 	{
-		return [.. users];
+		return await db.Users.ToArrayAsync();
 	}
 
-	public Listing? GetListing(UInt64 ID)
-	{
-		Listing? listing = listings.Find((n) => n.ID == ID);
-		return listing;
-	}
+	
+	// public Listing? GetListing(UInt64 ID)
+	// {
+	// 	Listing? listing = listings.Find((n) => n.ID == ID);
+	// 	return listing;
+	// }
+	//get a specific listing from the database
+	public async Task<Listing?> GetListingAsync(ulong id)
+    {
+        return await db.Listings.SingleAsync(l => l.ID == id);
+    }
+
 
 	public Listing[] GetListings()
 	{
 		return [.. listings];
 	}
-
+	//get all listings from the database
+	public async Task<Listing[]> GetListingsAsync()
+	{
+		return await db.Listings.ToArrayAsync();
+	}
 	public Listing[] GetListingsOfCategory(ListingCategory cat)
 	{
 		return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
 	}
-	public bool AddToCart(UInt64 userId, UInt64 listingId)
-    {
-        var user = users.Find(u => u.ID == userId);
-        if (user is null)
-        {
-            return false;
-        }
+	//retrieve listing based on category
+	public async Task<Listing[]> GetListingsOfCategoryAsync(ListingCategory cat)
+	{
+		return await db.Listings.Where(l => (l.Category & cat) != ListingCategory.none).ToArrayAsync();
+	}
 
-        var listing = GetListing(listingId);
-        if (listing is null)
-        {
-            return false;
-        }
-		if(listing.Quantity <= 0)
+	// public bool AddToCart(UInt64 userId, UInt64 listingId)
+    // {
+    //     var user = users.Find(u => u.ID == userId);
+    //     if (user is null)
+    //     {
+    //         return false;
+    //     }
+
+    //     var listing = GetListing(listingId);
+    //     if (listing is null)
+    //     {
+    //         return false;
+    //     }
+	// 	if(listing.Quantity <= 0)
+	// 	{
+	// 		return false;
+	// 	}
+
+    //     user.products[listingId] = listing;
+    //     return true;
+    // }
+
+	//add an item to a users cart
+	public async Task<bool> AddToCartAsync(UInt64 userId, UInt64 listingId)
+	{
+		User? user = await db.Users.FindAsync(userId);
+		if(user is null)
 		{
 			return false;
 		}
 
-        user.products[listingId] = listing;
-        return true;
-    }
-	public Listing[] GetCartListings(UInt64 userId)
-    {
-        var user = users.Find(u => u.ID == userId);
-        if (user is null)
-        {
-            return [];
-        }
+		Listing? listing = await db.Listings.FindAsync(listingId);
+		if(listing is null)
+		{
+			return false;
+		}
+		if(listing.Quantity <= 0)
+		{
+			return false;
+		}
+		if(await db.CartItems.Where(c => c.UserId == userId && c.ListingId == listingId).AnyAsync())
+		{
+			return false;
+		}
 
-        return [.. user.products.Values];
-    }
-	public bool IsInCart(UInt64 userId, UInt64 listingId)
-	{
-		var user = users.Find(u => u.ID == userId);
-		return user is not null && user.products.ContainsKey(listingId);
+		db.CartItems.Add(new CartItem
+		{
+			UserId = userId,
+			ListingId = listingId
+		});
+
+		await db.SaveChangesAsync();
+		return true;
+
 	}
 
-	public bool Buy(UInt64[] products, UInt64 userID)
-	{
-		var user = users.Find(u => u.ID == userID);
+	// public Listing[] GetCartListings(UInt64 userId)
+    // {
+    //     var user = users.Find(u => u.ID == userId);
+    //     if (user is null)
+    //     {
+    //         return [];
+    //     }
 
+    //     return [.. user.products.Values];
+    // }
+
+	//get the cart of a single user
+	public async Task<Listing[]> GetCartListingsAsync(UInt64 userId)
+	{
+		return await db.CartItems.Where(c => c.UserId == userId).Join(db.Listings, c=>c.ListingId, l => l.ID, (c, l) => l).ToArrayAsync();
+	}
+
+	// public bool IsInCart(UInt64 userId, UInt64 listingId)
+	// {
+	// 	var user = users.Find(u => u.ID == userId);
+	// 	return user is not null && user.products.ContainsKey(listingId);
+	// }
+
+	public async Task<bool> IsInCartAsync(UInt64 userId, UInt64 listingId)
+	{
+		return await db.CartItems.Where(c => c.UserId == userId && c.ListingId == listingId).AnyAsync();
+	}
+
+	// public bool Buy(UInt64[] products, UInt64 userID)
+	// {
+	// 	var user = users.Find(u => u.ID == userID);
+
+	// 	if (user is null)
+	// 	{
+	// 		return false;
+	// 	}
+
+
+	// 	foreach (var productId in products)
+	// 	{
+	// 		var listing = GetListing(productId);
+	// 		if (listing is null)
+	// 		{
+	// 			continue;
+	// 		}
+
+	// 		if (listing.Quantity > 0)
+	// 		{
+	// 			listing.Quantity--;
+	// 		}
+	// 		AppendPurchase(productId, userID);
+	// 		user.products.Remove(productId);
+
+
+	// 		if (listing.Quantity == 0)
+	// 		{
+	// 			//listings.RemoveAll(l => l.ID == productId);
+
+	// 			foreach (var otherUser in users)
+	// 			{
+	// 				otherUser.products.Remove(productId);
+	// 			}
+	// 		}
+	// 	}
+
+    // return true;
+	// }
+
+	//"buy" products from a users cart
+	public async Task<bool> BuyAsync(UInt64[] products, UInt64 userId)
+	{
+		User? user = await db.Users.FindAsync(userId);
 		if (user is null)
 		{
 			return false;
 		}
 
-
-		foreach (var productId in products)
+		foreach(var productId in products)
 		{
-			var listing = GetListing(productId);
-			if (listing is null)
+			Listing? listing = await db.Listings.FindAsync(productId);
+			if(listing is null)
 			{
 				continue;
 			}
@@ -179,55 +322,97 @@ public class Data
 			{
 				listing.Quantity--;
 			}
-			AppendPurchase(productId, userID);
-			user.products.Remove(productId);
+			await AppendPurchaseAsync(productId, userId);
+			db.CartItems.Remove(await db.CartItems.SingleAsync(c => c.ListingId == productId && c.UserId == userId));
 
-
-			if (listing.Quantity == 0)
+			if(listing.Quantity == 0)
 			{
-				//listings.RemoveAll(l => l.ID == productId);
-
-				foreach (var otherUser in users)
-				{
-					otherUser.products.Remove(productId);
-				}
+				db.CartItems.RemoveRange(await db.CartItems.Where(c => c.ListingId == productId).ToListAsync());
 			}
 		}
+		await db.SaveChangesAsync();
+		return true;
 
-    return true;
 	}
 
-	public bool CreateUser(string username, string password)
+	// public bool CreateUser(string username, string password)
+	// {
+	// 	if (users.Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)))
+	// 	{
+	// 		return false;
+	// 	}
+
+	// 	var nextId = users.Count == 0 ? 0UL : users.Max(u => u.ID) + 1;
+
+	// 	users.Add(new User
+	// 	{
+	// 		ID = nextId,
+	// 		Username = username,
+	// 		Password = password,
+	// 		IsAdmin = false,
+	// 		products = new Dictionary<UInt64, Listing>()
+	// 	});
+
+	// 	return true;
+	// }
+
+	//register a new user in the database
+	public async Task<bool> CreateUserAsync(string username, string password)
 	{
-		if (users.Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)))
+		if(await db.Users.Where(u => u.Username == username).AnyAsync())
 		{
 			return false;
 		}
 
-		var nextId = users.Count == 0 ? 0UL : users.Max(u => u.ID) + 1;
+		var nextId = (await db.Users.Select(u => (UInt64?)u.ID).MaxAsync() ?? 0UL) + 1UL;
 
-		users.Add(new User
+		db.Users.Add(new User
 		{
 			ID = nextId,
 			Username = username,
 			Password = password,
-			IsAdmin = false,
-			products = new Dictionary<UInt64, Listing>()
+			IsAdmin = false
 		});
+
+		await db.SaveChangesAsync();
 
 		return true;
 	}
 
-	public UInt64 CreateListing(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	// public UInt64 CreateListing(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	// {
+	// 	if (string.IsNullOrWhiteSpace(itemName))
+	// 	{
+	// 		return 0;
+	// 	}
+
+	// 	UInt64 nextId = listings.Count == 0 ? 0UL : listings.Max(l => l.ID) + 1;
+
+	// 	listings.Add(new Listing
+	// 	{
+	// 		ID = nextId,
+	// 		ItemName = itemName,
+	// 		ItemDescription = itemDescription,
+	// 		Category = category,
+	// 		Image = image,
+	// 		Price = price,
+	// 		Quantity = quantity
+	// 	});
+
+	// 	return nextId;
+	// }
+
+	//create a new listing and add it to the database
+	public async Task<UInt64> CreateListingAsync(string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
 	{
-		if (string.IsNullOrWhiteSpace(itemName))
+		if(string.IsNullOrWhiteSpace(itemName))
 		{
 			return 0;
 		}
 
-		var nextId = listings.Count == 0 ? 0UL : listings.Max(l => l.ID) + 1;
+		UInt64 nextId = (await db.Listings.Select(l => (UInt64?)l.ID).MaxAsync() ?? 0UL) + 1UL;
 
-		listings.Add(new Listing
+		db.Listings.Add(new Listing
 		{
 			ID = nextId,
 			ItemName = itemName,
@@ -238,17 +423,34 @@ public class Data
 			Quantity = quantity
 		});
 
+		await db.SaveChangesAsync();
 		return nextId;
 	}
 
-	public bool UpdateListing(UInt64 listingId, string itemName, string itemDescription, 
-		ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	// public bool UpdateListing(UInt64 listingId, string itemName, string itemDescription, 
+	// 	ListingCategory category, string image, UInt32 price, UInt32 quantity)
+	// {
+	// 	var listing = GetListing(listingId);
+	// 	if (listing is null)
+	// 	{
+	// 		return false;
+	// 	}
+
+	// 	listing.ItemName = itemName;
+	// 	listing.ItemDescription = itemDescription;
+	// 	listing.Category = category;
+	// 	listing.Image = image;
+	// 	listing.Price = price;
+	// 	listing.Quantity = quantity;
+
+	// 	return true;
+	// }
+
+	//update an existing listing in the database
+	public async Task<bool> UpdateListingAsync(UInt64 listingId, string itemName, string itemDescription, ListingCategory category, string image, UInt32 price, UInt32 quantity)
 	{
-		var listing = GetListing(listingId);
-		if (listing is null)
-		{
-			return false;
-		}
+		Listing? listing = await db.Listings.FindAsync(listingId);
+		if (listing is null) return false;
 
 		listing.ItemName = itemName;
 		listing.ItemDescription = itemDescription;
@@ -257,6 +459,7 @@ public class Data
 		listing.Price = price;
 		listing.Quantity = quantity;
 
+		await db.SaveChangesAsync();
 		return true;
 	}
 

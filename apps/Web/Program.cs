@@ -28,7 +28,8 @@ var connectionString = builder.Configuration.GetConnectionString("PostgreSQL");
 builder.Services.AddDbContext<Database.AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-builder.Services.AddSingleton<Database.Data>();
+// builder.Services.AddSingleton<Database.Data>();
+builder.Services.AddScoped<Database.Data>();
 
 
 var app = builder.Build();
