@@ -12,12 +12,12 @@
     public string? category { get; set; }
 
 	private Database.Data.Listing[] Listings = Array.Empty<Database.Data.Listing>();
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
     {
         //parse string to enum
         if (Enum.TryParse<Database.Data.ListingCategory>(category, true, out var parsedCategory))
         {
-            Listings = data.GetListingsOfCategory(parsedCategory).Where(l => (l.Quantity > 0)).ToArray();
+            Listings = (await data.GetListingsOfCategoryAsync(parsedCategory)).Where(l => (l.Quantity > 0)).ToArray();
         }
         else
         {

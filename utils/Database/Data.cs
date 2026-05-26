@@ -200,19 +200,19 @@ public class Data
     }
 
 
-	public Listing[] GetListings()
-	{
-		return [.. listings];
-	}
+	// public Listing[] GetListings()
+	// {
+	// 	return [.. listings];
+	// }
 	//get all listings from the database
 	public async Task<Listing[]> GetListingsAsync()
 	{
 		return await db.Listings.ToArrayAsync();
 	}
-	public Listing[] GetListingsOfCategory(ListingCategory cat)
-	{
-		return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
-	}
+	// public Listing[] GetListingsOfCategory(ListingCategory cat)
+	// {
+	// 	return [.. listings.FindAll(listing => (listing.Category & cat) != (ListingCategory)0)];
+	// }
 	//retrieve listing based on category
 	public async Task<Listing[]> GetListingsOfCategoryAsync(ListingCategory cat)
 	{

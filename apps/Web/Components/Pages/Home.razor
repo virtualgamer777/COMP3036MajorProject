@@ -18,9 +18,9 @@
     private string searchTerm = string.Empty;
 
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Listings = data.GetListings();
+        Listings = await data.GetListingsAsync();
     }
     private IEnumerable<Database.Data.Listing> FilteredListings =>
         Listings
