@@ -74,7 +74,7 @@ else
                         listingsById.TryGetValue(purchase.ProductID, out var listing)       //display basic listing information
                             ? listing.ItemName
                             : $"Listing #{purchase.ProductID}",
-                        purchase.Date))
+                        purchase.Date.ToLocalTime()))
                     .ToList()))
             .Where(group => group.Purchases.Count > 0)
             .OrderByDescending(group => group.Purchases.Count)

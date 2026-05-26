@@ -177,7 +177,7 @@ public class Data
 			PurchaseID = nextId,
 			UserID = userID,
 			ProductID = productID,
-			Date = DateTime.Now
+			Date = DateTime.UtcNow
 		});
 
 		await db.SaveChangesAsync();
