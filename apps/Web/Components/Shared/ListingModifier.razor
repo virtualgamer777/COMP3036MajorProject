@@ -76,13 +76,13 @@
     private string? error;
     private bool IsEditMode => ListingId is not null;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         InitializeCategories();
 
         if (IsEditMode)
         {
-            LoadListing();
+            await LoadListing();
         }
     }
 
