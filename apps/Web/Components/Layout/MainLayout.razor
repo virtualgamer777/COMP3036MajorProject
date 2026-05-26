@@ -1,8 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
-@inject NavigationManager Navigation
-@inject IJSRuntime JS
+@* @inject NavigationManager Navigation *@
+@* @inject HttpClient Http *@
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -14,7 +14,29 @@
                 <Authorized>
                     <span>Hello @context.User.FindFirst(ClaimTypes.Name)?.Value</span>
                     @* <NavLink href="logout">Sign out</NavLink> *@
-                    <button class="btn btn-link" @onclick="SignOutAsync">Sign out</button>
+                    @*This script was added to deal with an architectural issue resulting in c# code being unexecutable*@
+                    <script>
+                        async function signOut() {
+                            try {
+                                console.log('signOut -> calling DELETE /api/logout');
+                                const res = await fetch('/api/logout', {
+                                    method: 'DELETE',
+                                    credentials: 'same-origin'
+                                });
+                                console.log('logout response', res.status, res.statusText);
+                                if (res.ok) {
+                                    // successful sign-out - redirect to home
+                                    window.location.href = '/';
+                                } else {
+                                    alert('Sign out failed: ' + res.status + ' ' + res.statusText);
+                                }
+                            } catch (err) {
+                                console.error('signOut fetch failed', err);
+                                alert('Sign out request failed (see console).');
+                            }
+                        }
+                    </script>
+                    <button class="btn btn-link" onclick="signOut()">Sign out</button>
                 </Authorized>
                 <NotAuthorized>
                     <NavLink href="login">Sign in</NavLink>
@@ -35,15 +57,5 @@
     An unhandled error has occurred.
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
+    
 </div>
-
-@code {
-    //[Inject] public NavigationManager Navigation { get; set; } = default!;
-    //[Inject] public IJSRuntime JS { get; set; } = default!;
-
-    private async Task SignOutAsync()
-    {
-        await JS.InvokeVoidAsync("fetch", "/api/logout", new { method = "DELETE" });
-        Navigation.NavigateTo("/");
-    }
-}

@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IPasswordHasher<Database.Data.User>, PasswordHasher<Database.Data.User>>();
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<HttpClient>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
