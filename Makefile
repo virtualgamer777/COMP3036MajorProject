@@ -16,7 +16,7 @@ watch-web:
 
 start: watch-web
 
-WEB_BIN ?= /home/feetloaf/Documents/code/FullStackDevelopment/COMP3036MajorProject/apps/Web/bin/Debug/net10.0/Web
+WEB_BIN ?= apps/Web/bin/Debug/net10.0/Web
 
 start-web:
 	@echo "Starting web app in $(WEB_DIR)"

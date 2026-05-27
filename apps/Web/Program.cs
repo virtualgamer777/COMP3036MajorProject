@@ -18,9 +18,25 @@ builder.Services.AddRazorComponents()
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
     {
         options.Cookie.Name = "auth_token_web";
+        options.AccessDeniedPath = "/";
         options.LoginPath = "/login";
         options.Cookie.MaxAge = TimeSpan.FromHours(4);
-        options.AccessDeniedPath = "/login";
+        options.Events = new CookieAuthenticationEvents
+		{
+            OnRedirectToLogin = context =>
+            {
+                // Redirect to the login path without the ReturnUrl query
+                context.Response.Redirect(context.Options.LoginPath);
+                return Task.CompletedTask;
+            },
+            OnRedirectToAccessDenied = context =>
+            {
+                // Redirect to the access-denied path (or "/") without any query
+                var destination = context.Options.AccessDeniedPath.HasValue ? context.Options.AccessDeniedPath.Value : "/";
+                context.Response.Redirect(destination);
+                return Task.CompletedTask;
+            }
+        };
     });
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();

@@ -6,9 +6,12 @@ using NUnit.Framework;
 
 namespace PlaywrightTests
 {
+    
     [TestFixture]
+    [NonParallelizable]
     public class HomeTest : PageTest
     {
+
 		public override BrowserNewContextOptions ContextOptions()
 		{
 			return new BrowserNewContextOptions
@@ -16,6 +19,15 @@ namespace PlaywrightTests
 				BaseURL = "http://localhost:5134"
 			};
 		}
+
+        [OneTimeSetUp]
+        public async Task SeedDatabase()
+        {
+            using var client = new HttpClient { BaseAddress = new Uri("http://localhost:5134") };
+            await client.PostAsync("/api/seed", null);
+        }
+
+
         // Expected values sourced from the app's Nav, Home menu, Data.cs and MainLayout
         private static readonly string[] ExpectedNavItems = new[] { "B2C", "Home", "Categories" };
         private const int ExpectedArticlesCount = 3;
