@@ -72,11 +72,11 @@ namespace PlaywrightTests
 			await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
 
 			await LoginAsAsync(username, "test1234");
-			Console.WriteLine("page Url: " + Page.Url);
+			//Console.WriteLine("page Url: " + Page.Url);
 			await Expect(Page.GetByText($"Hello {username}", new() { Exact = false })).ToBeVisibleAsync();
 			await Page.GotoAsync("/admin/listingdashboard");
 
-			Console.WriteLine("page Url: " + Page.Url);
+			//Console.WriteLine("page Url: " + Page.Url);
 
 			await Expect(Page).ToHaveURLAsync(new Regex("/$", RegexOptions.IgnoreCase));
 			await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Listings" })).ToBeVisibleAsync();

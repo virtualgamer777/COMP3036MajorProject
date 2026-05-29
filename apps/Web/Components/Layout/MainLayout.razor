@@ -18,12 +18,12 @@
                     <script>
                         async function signOut() {
                             try {
-                                console.log('signOut -> calling DELETE /api/logout');
+                                //console.log('signOut -> calling DELETE /api/logout');
                                 const res = await fetch('/api/logout', {
                                     method: 'DELETE',
                                     credentials: 'same-origin'
                                 });
-                                console.log('logout response', res.status, res.statusText);
+                                //console.log('logout response', res.status, res.statusText);
                                 if (res.ok) {
                                     // successful sign-out - redirect to home
                                     window.location.href = '/';
@@ -31,8 +31,8 @@
                                     alert('Sign out failed: ' + res.status + ' ' + res.statusText);
                                 }
                             } catch (err) {
-                                console.error('signOut fetch failed', err);
-                                alert('Sign out request failed (see console).');
+                                //console.error('signOut fetch failed', err);
+                                //alert('Sign out request failed (see console).');
                             }
                         }
                     </script>

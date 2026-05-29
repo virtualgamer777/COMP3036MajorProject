@@ -18,7 +18,7 @@ else
 {
 	@foreach(var listing in Listings)
 	{
-		<div>
+		<div id="listing">
 			@listing.ItemName, $@((listing.Price / 100m).ToString("0.00"))
 		</div>
 	}
