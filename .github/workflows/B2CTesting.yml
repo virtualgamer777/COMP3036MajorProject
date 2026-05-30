@@ -11,7 +11,7 @@ jobs:
     - name: Setup dotnet
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 10.0.7
+        dotnet-version: 10.0.x
     - name: Build & Install
       run: dotnet build
     - name: Ensure browsers are installed
