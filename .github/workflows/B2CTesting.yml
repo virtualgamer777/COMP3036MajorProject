@@ -38,8 +38,8 @@ jobs:
       - name: Install dotnet-ef
         run: dotnet tool install --global dotnet-ef --version 10.0.7
       
-      - name: Build test project
-        run: dotnet build tests/PlaywrightTests/PlaywrightTests.csproj
+      - name: Build project
+        run: dotnet build
 
       - name: Apply database migrations
         run: dotnet ef database update --project utils/Database/Database.csproj --startup-project apps/Web/Web.csproj
