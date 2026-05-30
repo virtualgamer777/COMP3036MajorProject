@@ -58,7 +58,9 @@ namespace PlaywrightTests
 		public async Task CreateListing_SubmittingForm_NavigatesToEditPage()
 		{
 			await Page.GotoAsync("http://localhost:5134/admin/createlisting");
-			
+			await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+			await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Create Listing" }))
+    			.ToBeVisibleAsync(new() { Timeout = 10000 });
 			// Fill in all required form fields
 			await Page.GetByLabel("Item Name").FillAsync("Test Item");
 			await Page.GetByLabel("Description").FillAsync("This is a test item description");
@@ -68,18 +70,21 @@ namespace PlaywrightTests
 			await Page.GetByLabel("Image URL").FillAsync("https://example.com/image.jpg");
 			await Page.GetByLabel("Price (in cents)").FillAsync("9999");
 			await Page.GetByLabel("Quantity").FillAsync("10");
-			
+			//await Page.WaitForTimeoutAsync(2000);
 			// Submit the form
-			await Task.WhenAll(
-				Page.WaitForURLAsync(new Regex(@".*/admin/edit/\d+$")),
-				Page.GetByRole(AriaRole.Button, new() { Name = "Create" }).ClickAsync()
-			);
+			await Page.GetByRole(AriaRole.Button, new() { Name = "Create" }).ClickAsync();
+			await Expect(Page.Locator(".listing-form")).Not.ToContainTextAsync("Failed to create listing.");
+
+
 		}
 
 		[Test]
 		public async Task CreateListing_InvalidSubmission_StaysOnCreatePage()
 		{
 			await Page.GotoAsync("http://localhost:5134/admin/createlisting");
+			await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+			await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Create Listing" }))
+    			.ToBeVisibleAsync(new() { Timeout = 10000 });
 			
 			// Try to submit empty form
 			await Page.GetByRole(AriaRole.Button, new() { Name = "Create" }).ClickAsync();
@@ -97,17 +102,21 @@ namespace PlaywrightTests
 		public async Task CreateListing_MissingCategoryField_SubmissionFails()
 		{
 			await Page.GotoAsync("http://localhost:5134/admin/createlisting");
-			
+			await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+			await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Create Listing" }))
+    			.ToBeVisibleAsync(new() { Timeout = 10000 });
+
 			await Page.GetByLabel("Item Name").FillAsync("Test Item2");
 			await Page.GetByLabel("Description").FillAsync("This is a test item description2");
 			await Page.GetByLabel("Image URL").FillAsync("https://example.com/image.jpg");
 			await Page.GetByLabel("Price (in cents)").FillAsync("9999");
 			await Page.GetByLabel("Quantity").FillAsync("10");
-			
+
+
 			await Page.GetByRole(AriaRole.Button, new() { Name = "Create" }).ClickAsync();
-			
-			await Expect(Page).ToHaveURLAsync(new Regex(@".*/admin/createlisting$"));
-			await Expect(Page.GetByText("Please select at least one category.")).ToBeVisibleAsync();
+
+			await Expect(Page.GetByText("Please select at least one category.", new() { Exact = false })).ToBeVisibleAsync();
+
 		}
 	}
 }

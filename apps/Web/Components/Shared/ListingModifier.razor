@@ -84,6 +84,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        //Console.WriteLine("\n\n\n\n\nInitialized\n\n\n\n\n");
+
         InitializeCategories();
 
         if (IsEditMode)
@@ -123,6 +125,8 @@
 
     private async Task HandleSubmit()
     {
+        //Console.WriteLine("\n\n\n\n\nMade it This Far\n\n\n\n\n");
+
         error = null;
         categoryError = null;
 
@@ -172,10 +176,12 @@
 
         if (success)
         {
+            //Console.WriteLine("\n\n\n\n\nsuccess\n\n\n\n\n");
             await OnSuccess.InvokeAsync(createdId);
         }
         else
         {
+            //Console.WriteLine("\n\n\n\n\nfailure\n\n\n\n\n");
             error = IsEditMode ? "Failed to update listing." : "Failed to create listing.";
         }
     }
