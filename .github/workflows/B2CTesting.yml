@@ -14,6 +14,19 @@ jobs:
         dotnet-version: 10.0.x
     - name: Build & Install
       run: dotnet build
+    - name: Start web app
+      run: dotnet run --project apps/Web/Web.csproj --launch-profile http > web.log 2>&1 &
+      env:
+        ASPNETCORE_ENVIRONMENT: Development
+    - name: Wait for app
+      run: |
+        for i in {1..30}; do
+          curl -f http://localhost:5134/ && exit 0
+          sleep 2
+        done
+        echo "Web app did not start"
+        cat web.log
+        exit 1
     - name: Ensure browsers are installed
       run: pwsh tests/PlaywrightTests/bin/Debug/net10.0/playwright.ps1 install --with-deps
     - name: Run your tests
