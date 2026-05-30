@@ -39,6 +39,12 @@ jobs:
       - name: Build test project
         run: dotnet build tests/PlaywrightTests/PlaywrightTests.csproj
 
+      - name: Apply database migrations
+        run: dotnet ef database update --project utils/Database/Database.csproj --startup-project apps/Web/Web.csproj
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ConnectionStrings__PostgreSQL: Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true
+
       - name: Start web app
         run: dotnet run --project apps/Web/Web.csproj --launch-profile http > web.log 2>&1 &
 
