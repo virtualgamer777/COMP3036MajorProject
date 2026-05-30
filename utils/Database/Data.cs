@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+
 
 namespace Database;
 
@@ -8,12 +10,13 @@ public class Data
 {	
 	//database constructor
 	private readonly IDbContextFactory<AppDbContext> dbFactory;
+	private readonly IPasswordHasher<User> passwordHasher;
 
-	//constructor takes db Factory
-	public Data(IDbContextFactory<AppDbContext> dbFactory)
-	{
-		this.dbFactory = dbFactory;
-	}
+    public Data(IDbContextFactory<AppDbContext> dbFactory, IPasswordHasher<User> passwordHasher)
+    {
+        this.dbFactory = dbFactory;
+        this.passwordHasher = passwordHasher;
+    }
 
 	public class CartItem
 	{
@@ -70,14 +73,23 @@ public class Data
 		//reset db
 		await db.Database.EnsureDeletedAsync();
 		await db.Database.MigrateAsync();
-		// Seed users
-		db.Users.Add(new User
+
+		User bob = new User
 		{
 			ID = 1,
 			Username = "bob",
-			Password = "todd",
 			IsAdmin = true
-		});
+		};
+		bob.Password = passwordHasher.HashPassword(bob, "todd");
+		// Seed users
+		// db.Users.Add(new User
+		// {
+		// 	ID = 1,
+		// 	Username = "bob",
+		// 	Password = "todd",
+		// 	IsAdmin = true
+		// });
+		db.Users.Add(bob);
 
 		// Seed listings
 		db.Listings.AddRange(
@@ -431,13 +443,17 @@ public class Data
 
 		var nextId = (await db.Users.Select(u => (UInt64?)u.ID).MaxAsync() ?? 0UL) + 1UL;
 
-		db.Users.Add(new User
+		User user = new User
 		{
 			ID = nextId,
 			Username = username,
-			Password = password,
 			IsAdmin = false
-		});
+		};
+		
+
+		user.Password = passwordHasher.HashPassword(user, password);
+
+		db.Users.Add(user);
 
 		await db.SaveChangesAsync();
 
