@@ -103,6 +103,14 @@ public class Data
 			}
 		);
 
+		db.UserPurchases.Add( new UserPurchase() 
+		{
+			PurchaseID = 1,
+			UserID = 1,
+			ProductID = 1,
+			Date = DateTime.UtcNow
+		});
+
 		await db.SaveChangesAsync();
 	}
 
