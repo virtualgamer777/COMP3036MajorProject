@@ -35,7 +35,9 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
-
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.0.7
+      
       - name: Build test project
         run: dotnet build tests/PlaywrightTests/PlaywrightTests.csproj
 
