@@ -10,15 +10,8 @@ To run this website you require
 you need to install the dotnet entity framework, use `dotnet tool install --global dotnet-ef --version 10.0.7` to install it.
 Usually this is not a requirement. However, if there are any issues try to run `dotnet restore` in the root of the repository.
 
-## preparing the database
-you must push the schema to the database.
-to do so, first export the variable's `ASPNETCORE_ENVIRONMENT=Development`  & `ConnectionStrings__PostgreSQL='Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true'` replacing the connection string information with your postgres database.
-after exporting that shell variable, run `dotnet ef database update --project utils/Database --startup-project apps/Web` from the root of the project.
-
-Copy the apps/Web/Properties/LaunchSettings.json.example to LaunchSettings.json and replace the ConnectionStrings__PostgreSQL values to what you used in the previous steps.
-
 # The quick way to do things
-if you've installed everything listed above and you are on linux (macos may also work but this is untested.) there is a Makefile at the root of the project to help automate things. the available commands are
+if you've installed everything listed above and you are on linux (macos may also work but this is untested.) there is a Makefile at the root of the project to help automate things. the available commands are (You must still complete preparing the database below, the reason this is here will be explained there.)
 
 > `make build` to build the projecct.
 > `make watch-web` to run the site with hot reloading.
@@ -27,6 +20,16 @@ if you've installed everything listed above and you are on linux (macos may also
 
 ## building
 To build the application, go to the root directory (or web, both work) & run `dotnet build` to build the application.
+
+
+## preparing the database
+first, you must follow the above instructions to build the application before performing these steps as the dotnet EF framework may require a built application to successfully migrate.
+
+you must push the schema to the database.
+to do so, first export the variable's `ASPNETCORE_ENVIRONMENT=Development`  & `ConnectionStrings__PostgreSQL='Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true'` replacing the connection string information with your postgres database.
+after exporting that shell variable, run `dotnet ef database update --project utils/Database --startup-project apps/Web` from the root of the project.
+
+Copy the apps/Web/Properties/LaunchSettings.json.example to LaunchSettings.json and replace the ConnectionStrings__PostgreSQL values to what you used in the previous steps.
 
 ## running the website
 Finally, to run the website in development mode use `dotnet watch` in the apps/web directory & the website should build and run with hot reload enabled, if you do not want this functionality use `dotnet run` also in the apps/web directory.
