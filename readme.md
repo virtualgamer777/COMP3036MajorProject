@@ -3,7 +3,7 @@
 ## Requirements
 To run this website you require
 - dotnet SDK v10.0.104 or newer (some older versions may work)
-- Some OS's or linux distrobutions may require other ASP.NET external packages
+- Some OS's or linux distributions may require other ASP.NET external packages
 - A postgreSQL database
 
 ## Installing dependencies (optional)
