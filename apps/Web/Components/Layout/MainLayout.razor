@@ -12,7 +12,7 @@
         <div class="top-row px-4">
             <AuthorizeView>
                 <Authorized>
-                    <span>Hello @context.User.FindFirst(ClaimTypes.Name)?.Value</span>
+                    <span><NavLink href="purchases">Hello @context.User.FindFirst(ClaimTypes.Name)?.Value</NavLink></span>
                     @* <NavLink href="logout">Sign out</NavLink> *@
                     @*This script was added to deal with an architectural issue resulting in c# code being unexecutable*@
                     <script>
