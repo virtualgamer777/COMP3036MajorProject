@@ -30,6 +30,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+      
+      - name: Copy launch settings
+        run: cp apps/Web/Properties/launchSettings.json.example apps/Web/Properties/launchSettings.json
 
       - name: Setup dotnet
         uses: actions/setup-dotnet@v5
@@ -50,6 +53,9 @@ jobs:
       - name: Start web app
         run: dotnet run --project apps/Web/Web.csproj --launch-profile http > web.log 2>&1 &
 
+      - name: Ensure browsers are installed
+        run: pwsh tests/PlaywrightTests/bin/Debug/net10.0/playwright.ps1 install --with-deps
+
       - name: Wait for app
         run: |
           for i in {1..30}; do
@@ -59,9 +65,6 @@ jobs:
           echo "Web app did not start"
           cat web.log
           exit 1
-
-      - name: Ensure browsers are installed
-        run: pwsh tests/PlaywrightTests/bin/Debug/net10.0/playwright.ps1 install --with-deps
 
       - name: Run your tests
         run: dotnet test tests/PlaywrightTests/PlaywrightTests.csproj
