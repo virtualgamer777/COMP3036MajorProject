@@ -1,0 +1,70 @@
+name: Playwright Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: dev
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d dev"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__PostgreSQL: Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true
+
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: Copy launch settings
+        run: cp apps/Web/Properties/launchSettings.json.example apps/Web/Properties/launchSettings.json
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Install dotnet-ef
+        run: dotnet tool install --global dotnet-ef --version 10.0.7
+      
+      - name: Build project
+        run: dotnet build
+
+      - name: Apply database migrations
+        run: dotnet ef database update --project utils/Database/Database.csproj --startup-project apps/Web/Web.csproj
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ConnectionStrings__PostgreSQL: Host=localhost;Port=5432;Database=dev;Username=postgres;Password=password;Include Error Detail=true
+
+      - name: Start web app
+        run: dotnet run --project apps/Web/Web.csproj --launch-profile http > web.log 2>&1 &
+
+      - name: Ensure browsers are installed
+        run: pwsh tests/PlaywrightTests/bin/Debug/net10.0/playwright.ps1 install --with-deps
+
+      - name: Wait for app
+        run: |
+          for i in {1..30}; do
+            curl -f http://localhost:5134/ && exit 0
+            sleep 2
+          done
+          echo "Web app did not start"
+          cat web.log
+          exit 1
+
+      - name: Run your tests
+        run: dotnet test tests/PlaywrightTests/PlaywrightTests.csproj

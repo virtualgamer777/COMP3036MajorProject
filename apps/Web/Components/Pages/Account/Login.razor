@@ -19,14 +19,14 @@
                 <DataAnnotationsValidator />
 
                 <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <InputText class="form-control" @bind-Value="credentials.Username" autofocus />
+                    <label class="form-label" for="login-username">Username</label>
+                    <InputText id="login-username" class="form-control" @bind-Value="credentials.Username" autofocus />
                     <ValidationMessage For="@(() => credentials.Username)" />
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <InputText class="form-control" @bind-Value="credentials.Password" type="password" />
+                    <label class="form-label" for="login-password">Password</label>
+                    <InputText id="login-password" class="form-control" @bind-Value="credentials.Password" type="password" />
                     <ValidationMessage For="@(() => credentials.Password)" />
                 </div>
 
@@ -56,10 +56,10 @@
 </div>
 
 @code {
-    
-	//this code is run when the button is pressed, due to login it is run as a post request to login
-	[SupplyParameterFromForm]
-	public Credentials credentials { get; set; } = new();
+
+    //this code is run when the button is pressed, due to login it is run as a post request to login
+    [SupplyParameterFromForm]
+    public Credentials credentials { get; set; } = new();
     private bool isBusy;
     private string? error;
 
@@ -75,33 +75,19 @@
             var enteredPass = credentials.Password ?? string.Empty;
 
             //get isers
-            var user = DataService.GetUsers()
+            Database.Data.User? user = (await DataService.GetUsersAsync())
                 .FirstOrDefault(u => string.Equals(u.Username?.Trim(), enteredUser, StringComparison.OrdinalIgnoreCase));
-            
+
             if (user is null)
             {
                 error = "Invalid username or password. ";
                 return;
             }
 
-            bool ok = false;
-            //password hash, currently not doing anything
-            try
+            Microsoft.AspNetCore.Identity.PasswordVerificationResult verification = PasswordHasher.VerifyHashedPassword(user, user.Password, enteredPass);
+            if (verification == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Failed)
             {
-                //var verify = PasswordHasher.VerifyHashedPassword(user, user.Password, enteredPass);
-                //ok = verify == Microsoft.AspNetCore.Identity.PasswordVerificationResult.Success;
-            }
-            catch
-            {
-                
-				
-            }
-			ok = !string.IsNullOrEmpty(user.Password) && user.Password == enteredPass;
-
-            if (!ok)
-            {
-				
-                error = "Invalid username or password. ";
+                error = "Invalid username or password.";
                 return;
             }
 

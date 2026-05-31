@@ -3,4 +3,7 @@
     <Project Path="apps/Web/Web.csproj" />
     <Project Path="utils/Database/Database.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PlaywrightTests/PlaywrightTests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,71 @@
+@page "/purchases"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inject Database.Data data
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@attribute [Authorize]
+
+<PageTitle>My Purchases</PageTitle>
+
+<h1 class="major-heading">My Purchases</h1>
+
+@if (purchases.Count == 0)
+{
+    <p>You haven't made any purchases yet.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var purchase in purchases)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="fw-bold">@purchase.ItemName</div>
+                    <div>Product ID: @purchase.ProductID</div>
+                </div>
+                <div class="text-end">
+                    <div>@purchase.Date.ToString("g")</div>
+                    <small class="text-muted">Purchase #@purchase.PurchaseID</small>
+                </div>
+            </li>
+        }
+    </div>
+}
+
+@code {
+    private List<PurchaseRow> purchases = [];
+    private ulong? currentUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        System.Security.Claims.ClaimsPrincipal? user = authState.User;
+        
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            Database.Data.User[]? users = await data.GetUsersAsync();
+            currentUserId = users?.FirstOrDefault(u => u.Username == user.Identity.Name)?.ID;
+            
+            if (currentUserId.HasValue)
+            {
+                Database.Data.UserPurchase[]? allPurchases = await data.GetPurchasesAsync();
+                Dictionary<ulong, Database.Data.Listing>? listingsById = (await data.GetListingsAsync()).ToDictionary(listing => listing.ID);
+                
+                purchases = allPurchases
+                    .Where(purchase => purchase.UserID == currentUserId.Value)
+                    .OrderByDescending(purchase => purchase.Date)
+                    .Select(purchase => new PurchaseRow(
+                        purchase.PurchaseID,
+                        purchase.ProductID,
+                        listingsById.TryGetValue(purchase.ProductID, out var listing)
+                            ? listing.ItemName
+                            : $"Listing #{purchase.ProductID}",
+                        purchase.Date.ToLocalTime()))
+                    .ToList();
+            }
+        }
+    }
+
+    private sealed record PurchaseRow(ulong PurchaseID, ulong ProductID, string ItemName, DateTime Date);
+}
