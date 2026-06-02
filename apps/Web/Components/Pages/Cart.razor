@@ -1,11 +1,13 @@
 @page "/cart"
 @using Database
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
 @rendermode InteractiveServer
 @inject Database.Data data
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager Navigation
 @inject Database.Data DataService
+@attribute [Authorize]
 
 
 <h1 class="major-heading">Cart</h1>
@@ -38,11 +40,11 @@ else
         AuthenticationState? authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         System.Security.Claims.ClaimsPrincipal? user = authState.User;
 
-        if (user.Identity?.IsAuthenticated != true)
+        @* if (user.Identity?.IsAuthenticated != true)
         {
             Navigation.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/cart")}", forceLoad: true);
             return;
-        }
+        } *@
 
         var userIdClaim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 		if (!ulong.TryParse(userIdClaim, out var userId))
