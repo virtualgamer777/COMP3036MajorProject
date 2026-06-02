@@ -76,9 +76,13 @@ namespace PlaywrightTests
 		public async Task Home_Search_Filters_Listings()
 		{
 			await Page.GotoAsync("http://localhost:5134/");
+            await Page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+
 
 			var search = Page.GetByPlaceholder("Search listings...");
 			await search.FillAsync("holden");
+
+            await Page.WaitForTimeoutAsync(1000);
 
 			await Expect(Page.Locator("article.listing-card")).ToHaveCountAsync(1);
 			await Expect(Page.GetByText("1990 Holden Commodore", new() { Exact = true })).ToBeVisibleAsync();
